@@ -102,9 +102,8 @@ brew install \
 
 # Install GUI applications via Homebrew Cask
 echo "🖥️ Installing GUI applications..."
-brew install --cask \
-    visual-studio-code \
-    docker
+brew install --cask visual-studio-code || echo "⚠️ Visual Studio Code installation had issues, continuing..."
+brew install --cask docker-desktop || echo "⚠️ Docker Desktop installation had issues, continuing..."
 
 # Install Xcode Command Line Tools
 echo "🛠️ Installing Xcode Command Line Tools..."
