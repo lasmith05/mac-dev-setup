@@ -157,16 +157,23 @@ create_dotfile() {
         echo "📄 Processing $file..."
         echo "🔍 About to execute: cp '$source_file' '$file'"
         echo "🔍 Target directory writable: $([ -w "$(dirname "$file")" ] && echo "YES" || echo "NO")"
+        echo "⏸️  Press any key to execute the copy command..."
+        read -n 1 -s
+        echo "🚀 Executing copy command now..."
         
         if cp "$source_file" "$file"; then
             echo "✅ Copy command succeeded"
             echo "🔍 Target file now exists: $([ -f "$file" ] && echo "YES" || echo "NO")"
             echo "🔍 Target file size: $(ls -l "$file" 2>/dev/null | awk '{print $5}' || echo "unknown") bytes"
+            echo "⏸️  Press any key to continue..."
+            read -n 1 -s
         else
             echo "❌ Copy command failed with exit code: $?"
             echo "🔍 Attempting to show why:"
             echo "🔍 Source file info: $(ls -l "$source_file" 2>/dev/null || echo "cannot stat source")"
             echo "🔍 Target directory info: $(ls -ld "$(dirname "$file")" 2>/dev/null || echo "cannot stat target dir")"
+            echo "⏸️  Press any key to continue..."
+            read -n 1 -s
         fi
     else
         echo "⚠️  $source_file not found, skipping $file"
