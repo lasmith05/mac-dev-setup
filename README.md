@@ -1,117 +1,132 @@
-# Mac Development Environment Setup
+# Cross-Platform Development Environment Setup
 
-Automated setup script to create a consistent, high-quality development environment on macOS with modern CLI tools, enhanced terminal experience, and essential development applications.
+Automated setup scripts to create a consistent, high-quality development environment across macOS and Windows (with WSL2). This repository provides modern CLI tools, enhanced terminal experience, and essential development applications.
 
 ## 🚀 Quick Start
 
-### 1. Download Files
+Choose your platform and follow the setup instructions:
 
-Clone this repository or download these files:
-- `mac-setup.sh` (Main setup script)
-- `.tmux.conf` (tmux configuration)
-- `.zshrc.custom` (zsh configuration)
-- `.vimrc` (vim configuration)
-
-### 2. Run Setup
+### macOS Setup
 
 ```bash
-# Make the script executable
-chmod +x mac-setup.sh
+# Clone the repository
+git clone <repository-url>
+cd dev-setup
 
-# Run the setup script
-./mac-setup.sh
+# Make setup script executable and run
+chmod +x macos/setup.sh
+./macos/setup.sh
 ```
 
-The script will automatically:
-- Install Homebrew (if not already installed)
-- Install all development tools and CLI utilities
-- Set up dotfiles and configurations
-- Install Visual Studio Code and extensions
-- Configure tmux, zsh, and vim
+### Windows Setup
 
-### 3. Manual Steps
+```batch
+# Clone the repository
+git clone <repository-url>
+cd dev-setup
 
-1. **Install Xcode from App Store** (if you need the full IDE)
-2. **Restart your terminal** to use zsh as default shell
-3. **Install tmux plugins**: Open tmux and press `Ctrl+a` then `I`
-4. **Configure Git**:
-   ```bash
-   git config --global user.name "Your Name"
-   git config --global user.email "your.email@example.com"
-   ```
+# Method 1: Automated (Recommended)
+# Right-click windows/setup.bat and "Run as administrator"
+
+# Method 2: Manual
+# Run PowerShell as Administrator, then:
+./windows/windows-setup.ps1
+# After restart, in WSL2 Ubuntu:
+./windows/ubuntu-setup.sh
+```
+
+## 🗂️ Repository Structure
+
+```
+dev-setup/
+├── README.md                 # This file
+├── CLAUDE.md                 # Instructions for Claude Code
+├── macos/
+│   └── setup.sh             # macOS setup script
+├── windows/
+│   ├── setup.bat            # Windows batch wrapper (recommended)
+│   ├── windows-setup.ps1    # Windows PowerShell script  
+│   └── ubuntu-setup.sh      # Ubuntu WSL2 setup script
+└── dotfiles/
+    ├── .tmux.conf           # Tmux configuration
+    ├── .vimrc              # Vim configuration
+    └── .zshrc.custom       # Zsh configuration
+```
 
 ## 🛠️ What Gets Installed
 
-### Applications
-- **Visual Studio Code** - Primary code editor
-- **Docker Desktop** - Containerization platform
-- **Xcode Command Line Tools** - Essential build tools
+### Core Development Tools
+- **Languages**: Node.js, Rust (with Cargo), Python 3
+- **Infrastructure**: Terraform, AWS CLI, Docker
+- **Version Control**: Git with Git LFS
+- **Editors**: Visual Studio Code with extensions, Vim
 
-### Development Tools
-- **Homebrew** - Package manager for macOS
-- **Node.js** - JavaScript runtime
-- **Terraform** - Infrastructure as code
-- **AWS CLI** - Amazon Web Services command line
-- **Git** - Version control (with Git LFS)
-- **Rust** - Modern systems programming language
+### Modern CLI Tools
+- **File Operations**: eza (ls replacement), bat (cat replacement), fd (find replacement)
+- **Search**: ripgrep (grep replacement), fzf (fuzzy finder)
+- **System**: htop, tree, jq, tldr
+- **Terminal**: tmux with TPM plugin manager
 
-### Quality of Life CLI Tools
-- **eza** - Modern replacement for ls with colors and icons
-- **ripgrep** - Fast text search tool
-- **fd** - Better find command
-- **fzf** - Fuzzy finder for files and commands
-- **bat** - Better cat with syntax highlighting
-- **tree** - Directory tree visualization
-- **htop** - Better top command
-- **jq** - JSON processor
-- **tldr** - Simplified man pages
+### Shell Environment
+- **Shell**: zsh with Oh My Zsh (robbyrussell theme)
+- **Key Aliases**: Modern command replacements and git shortcuts
+- **Functions**: File extraction, weather lookup, directory navigation utilities
 
-### Terminal & Shell
-- **tmux** - Terminal multiplexer with plugins
-- **zsh** - Modern shell with Oh My Zsh
-- **Oh My Zsh** - Zsh framework with themes and plugins
-- **TPM** - Tmux Plugin Manager
+## 📋 Platform-Specific Details
 
-## 📋 Configuration Details
+### macOS
+- **Package Manager**: Homebrew
+- **Applications**: Visual Studio Code, Docker Desktop, Xcode Command Line Tools
+- **Shell**: Native zsh with Oh My Zsh
+- **Terminal**: Enhanced with tmux and modern CLI tools
 
-### Shell Features
-- **Default Shell**: zsh with Oh My Zsh (robbyrussell theme)
-- **Quality of Life Aliases**:
-  - `ls` → `eza` (colorful file listing with icons)
-  - `cat` → `bat` (syntax highlighting)
-  - `find` → `fd` (smart file finding)
-  - `grep` → `rg` (ripgrep for fast searching)
-- **Git Shortcuts**: `gs`, `ga`, `gc`, `gp`, `gl`
-- **Terraform Shortcuts**: `tf`, `tfa`, `tfp`
+### Windows + WSL2
+- **Phase 1 (Windows)**: WSL2 installation, Windows applications via winget
+- **Phase 2 (Ubuntu)**: Development environment in WSL2 Ubuntu
+- **Cross-Platform**: Files accessible from both Windows and Ubuntu
 
-### tmux Configuration
+## 🔧 Configuration Features
+
+### Shell Configuration (.zshrc.custom)
+```bash
+# Modern CLI tool aliases
+alias ls='eza --icons'
+alias cat='bat'
+alias find='fd'
+alias grep='rg'
+
+# Git shortcuts
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate --all'
+
+# Terraform shortcuts
+alias tf='terraform'
+alias tfa='terraform apply'
+alias tfp='terraform plan'
+```
+
+### Tmux Configuration (.tmux.conf)
 - **Prefix Key**: `Ctrl+a` (instead of default `Ctrl+b`)
+- **Navigation**: Vim-style pane navigation (`h`/`j`/`k`/`l`)
+- **Splitting**: `|` for vertical split, `-` for horizontal split
 - **Mouse Support**: Click panes, drag borders, scroll with wheel
-- **Plugin Manager**: TPM with essential productivity plugins
-- **Key Bindings**:
-  - `Ctrl+a c` - New window
-  - `Ctrl+a |` - Split vertically
-  - `Ctrl+a -` - Split horizontally
-  - `Ctrl+a h/j/k/l` - Navigate panes (vim-style)
+- **Plugins**: TPM with productivity plugins (resurrect, continuum, yank)
 
-### Vim Configuration
-- **Modern Features**: Relative line numbers, syntax highlighting
-- **Smart Editing**: Auto-indentation, smart case searching
-- **File Handling**: Automatic backup and persistent undo
-
-### VS Code Extensions
-- **Remote Development**: SSH, Containers
-- **Version Control**: GitLens
-- **Languages**: Python, TypeScript, Rust, PowerShell
-- **Tools**: Docker, Terraform, Jupyter
-- **Productivity**: GitHub Copilot, Markdown Preview Enhanced
+### Vim Configuration (.vimrc)
+- **Modern Features**: Relative line numbers, syntax highlighting, smart indentation
+- **Key Mappings**: `jj` to exit insert mode, `Ctrl+s` to save
+- **File Handling**: Automatic backup, undo history, trailing whitespace removal
+- **Development**: File type specific settings, spell checking for text files
 
 ## 🧪 Testing Your Setup
 
 After installation, test these commands:
 
 ```bash
-# Quality of life tools
+# Modern CLI tools
 ls          # Should show colorful output with icons
 cat ~/.zshrc # Should show syntax highlighting
 tree        # Should show directory structure
@@ -128,64 +143,78 @@ tmux        # Should start with mouse support
 # Press Ctrl+a then I to install plugins
 ```
 
+## 🔄 Manual Post-Setup Steps
+
+1. **Configure Git credentials**:
+   ```bash
+   git config --global user.name "Your Name"
+   git config --global user.email "your.email@example.com"
+   ```
+
+2. **Install tmux plugins**:
+   - Open tmux: `tmux`
+   - Press `Ctrl+a` then `I` to install plugins
+
+3. **Restart terminal** to ensure all changes take effect
+
+4. **macOS Only**: Install full Xcode from App Store if needed
+
+## 🎯 Cross-Platform Consistency
+
+### Shared Configuration
+All platforms use identical dotfiles ensuring consistent development experience:
+- Same tmux configuration and key bindings
+- Same zsh aliases and functions
+- Same vim configuration and key mappings
+
+### Platform Adaptations
+- **macOS**: Native Homebrew packages and GUI applications
+- **Windows**: WSL2 with Ubuntu, Windows applications via winget
+- **Line Endings**: Automatic conversion for cross-platform compatibility
+
+## 🆘 Troubleshooting
+
+### macOS Issues
+- **Homebrew installation**: Make sure Xcode Command Line Tools are installed
+- **Shell not changing**: Run `chsh -s $(which zsh)` manually
+- **VS Code extensions**: Restart terminal after VS Code installation
+
+### Windows Issues
+- **WSL2 installation**: Ensure Windows version supports WSL2 (Windows 10 2004+ or Windows 11)
+- **PowerShell execution**: Run PowerShell as Administrator
+- **Ubuntu setup**: Copy files from Windows to Ubuntu before running ubuntu-setup.sh
+
+### Common Issues
+- **Tmux plugins**: Install manually with `Ctrl+a` then `I`
+- **dotfiles not found**: Ensure you're running scripts from the correct directory
+- **Permission errors**: Check that setup scripts are executable (`chmod +x`)
+
 ## 🔧 Customization
 
 ### Adding More Tools
-Edit `mac-setup.sh` and add packages to the brew install commands:
+Edit the setup scripts and add packages:
+
+**macOS**:
 ```bash
 brew install your-package-name
 ```
 
-### Customizing Aliases
-Edit `.zshrc.custom` to add your own aliases:
+**Windows/Ubuntu**:
+```bash
+sudo apt install your-package-name
+```
+
+### Customizing Dotfiles
+Edit files in the `dotfiles/` directory:
+- `.tmux.conf`: Add tmux plugins and key bindings
+- `.zshrc.custom`: Add aliases and functions
+- `.vimrc`: Add vim plugins and configurations
+
+### Adding Aliases
+Edit `dotfiles/.zshrc.custom`:
 ```bash
 alias myalias='your-command'
 ```
-
-### tmux Plugins
-Add more plugins to `.tmux.conf`:
-```bash
-set -g @plugin 'plugin-name'
-```
-
-## 🆘 Troubleshooting
-
-### Homebrew Installation Issues
-- Make sure you have internet connection
-- Check if Xcode Command Line Tools are installed: `xcode-select --install`
-- For Apple Silicon Macs, make sure Homebrew is in your PATH
-
-### VS Code Extensions Not Installing
-- Restart terminal after VS Code installation
-- Manually install extensions: `code --install-extension extension-name`
-
-### tmux Plugins Not Working
-- Ensure TPM is installed: `ls ~/.tmux/plugins/tpm`
-- Install plugins manually: `Ctrl+a` then `I`
-- Restart tmux: `tmux kill-server` then `tmux`
-
-### Shell Not Changing to zsh
-- Restart your terminal application
-- Manually change shell: `chsh -s $(which zsh)`
-
-## 🎯 Repository Structure
-
-```
-mac-dev-setup/
-├── mac-setup.sh      # Main setup script
-├── .tmux.conf        # tmux configuration
-├── .zshrc.custom     # zsh configuration
-├── .vimrc           # vim configuration
-├── README.md        # This file
-└── CLAUDE.md        # Instructions for Claude Code
-```
-
-## 🚀 Next Steps
-
-1. **Customize your setup** by editing the dotfiles
-2. **Explore tmux plugins** and add more productivity tools
-3. **Set up your development projects** with the new environment
-4. **Configure VS Code** with your preferred settings and themes
 
 ## 🎉 Enjoy Your Development Environment!
 
