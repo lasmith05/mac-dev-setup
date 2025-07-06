@@ -150,18 +150,30 @@ create_dotfile() {
     local source_file="$2"
     
     echo "🔍 Checking for: $source_file"
+    echo "🔍 Source file exists: $([ -f "$source_file" ] && echo "YES" || echo "NO")"
+    echo "🔍 Source file readable: $([ -r "$source_file" ] && echo "YES" || echo "NO")"
+    
     if [ -f "$source_file" ]; then
         echo "📄 Processing $file..."
+        echo "🔍 About to execute: cp '$source_file' '$file'"
+        echo "🔍 Target directory writable: $([ -w "$(dirname "$file")" ] && echo "YES" || echo "NO")"
+        
         if cp "$source_file" "$file"; then
-            echo "✅ $file created successfully"
+            echo "✅ Copy command succeeded"
+            echo "🔍 Target file now exists: $([ -f "$file" ] && echo "YES" || echo "NO")"
+            echo "🔍 Target file size: $(ls -l "$file" 2>/dev/null | awk '{print $5}' || echo "unknown") bytes"
         else
-            echo "❌ Failed to copy $source_file to $file"
+            echo "❌ Copy command failed with exit code: $?"
+            echo "🔍 Attempting to show why:"
+            echo "🔍 Source file info: $(ls -l "$source_file" 2>/dev/null || echo "cannot stat source")"
+            echo "🔍 Target directory info: $(ls -ld "$(dirname "$file")" 2>/dev/null || echo "cannot stat target dir")"
         fi
     else
         echo "⚠️  $source_file not found, skipping $file"
         echo "🔍 Directory contents:"
         ls -la "$(dirname "$source_file")" || echo "Directory doesn't exist"
     fi
+    echo "---"
 }
 
 # Create dotfiles from dotfiles directory
