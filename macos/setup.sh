@@ -124,8 +124,28 @@ echo "This script installs Xcode Command Line Tools only."
 
 # Install Oh My Zsh
 echo "🐚 Installing Oh My Zsh..."
+echo "🔍 Checking if Oh My Zsh already exists..."
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    echo "📥 Oh My Zsh not found, installing..."
+    echo "🔍 About to run: curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    if sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; then
+        echo "✅ Oh My Zsh installation completed"
+        echo "🔍 Verifying installation..."
+        if [ -d "$HOME/.oh-my-zsh" ]; then
+            echo "✅ Oh My Zsh directory exists"
+        else
+            echo "❌ Oh My Zsh directory not found after installation"
+        fi
+        if [ -f "$HOME/.zshrc" ]; then
+            echo "✅ .zshrc file created"
+        else
+            echo "❌ .zshrc file not created"
+        fi
+    else
+        echo "❌ Oh My Zsh installation failed with exit code: $?"
+    fi
+else
+    echo "✅ Oh My Zsh already installed"
 fi
 
 # Install TPM (Tmux Plugin Manager)
