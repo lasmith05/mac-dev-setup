@@ -7,11 +7,23 @@ set -e  # Exit on any error
 echo "🍎 Setting up Mac Development Environment..."
 
 # Get script directory to find dotfiles
+echo "🔍 Current working directory: $(pwd)"
+echo "🔍 Script path: ${BASH_SOURCE[0]}"
+echo "🔍 Script dirname: $(dirname "${BASH_SOURCE[0]}")"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")/dotfiles"
 
 echo "🔍 Script location: $SCRIPT_DIR"
 echo "🔍 Looking for dotfiles in: $DOTFILES_DIR"
+echo "🔍 Does dotfiles directory exist? $([ -d "$DOTFILES_DIR" ] && echo "YES" || echo "NO")"
+if [ -d "$DOTFILES_DIR" ]; then
+    echo "🔍 Dotfiles directory contents:"
+    ls -la "$DOTFILES_DIR"
+else
+    echo "🔍 Parent directory contents:"
+    ls -la "$(dirname "$SCRIPT_DIR")"
+fi
 
 # Function to check if command exists
 command_exists() {
@@ -159,18 +171,36 @@ create_dotfile ~/.zshrc.custom "$DOTFILES_DIR/.zshrc.custom"
 
 # Verify dotfiles were created
 echo "🔍 Verifying dotfiles..."
+echo "🔍 Checking home directory for dotfiles:"
+ls -la ~/. | grep -E "\.(tmux\.conf|vimrc|zshrc\.custom)" || echo "No dotfiles found in home directory"
+
+echo "🔍 Individual file checks:"
 verify_file ~/.tmux.conf || echo "⚠️  .tmux.conf not created"
-verify_file ~/.vimrc || echo "⚠️  .vimrc not created"
+verify_file ~/.vimrc || echo "⚠️  .vimrc not created" 
 verify_file ~/.zshrc.custom || echo "⚠️  .zshrc.custom not created"
 
+echo "🔍 Home directory permissions:"
+ls -ld ~/
+
 # Add custom zsh config to .zshrc
+echo "🔍 Linking custom zsh config..."
 if [ -f "$HOME/.zshrc.custom" ]; then
+    echo "✅ .zshrc.custom exists, checking if linked..."
     if ! grep -q "source ~/.zshrc.custom" ~/.zshrc 2>/dev/null; then
+        echo "📄 Adding source line to .zshrc..."
         echo "" >> ~/.zshrc
         echo "# Custom configuration" >> ~/.zshrc
         echo "source ~/.zshrc.custom" >> ~/.zshrc
+        echo "✅ Custom config linked to .zshrc"
+    else
+        echo "✅ Custom config already linked in .zshrc"
     fi
+else
+    echo "❌ .zshrc.custom not found, cannot link to .zshrc"
 fi
+
+echo "🔍 Current .zshrc tail:"
+tail -5 ~/.zshrc
 
 # Set zsh as default shell (if not already)
 if [[ "$SHELL" != */zsh ]]; then
