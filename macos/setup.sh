@@ -81,7 +81,7 @@ echo "🛠️ Installing development languages and tools..."
 brew install \
     node \
     terraform \
-    aws-cli \
+    awscli \
     docker \
     git-lfs
 
