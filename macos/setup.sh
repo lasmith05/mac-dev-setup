@@ -10,6 +10,9 @@ echo "🍎 Setting up Mac Development Environment..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")/dotfiles"
 
+echo "🔍 Script location: $SCRIPT_DIR"
+echo "🔍 Looking for dotfiles in: $DOTFILES_DIR"
+
 # Function to check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -134,12 +137,18 @@ create_dotfile() {
     local file="$1"
     local source_file="$2"
     
+    echo "🔍 Checking for: $source_file"
     if [ -f "$source_file" ]; then
         echo "📄 Processing $file..."
-        cp "$source_file" "$file"
-        echo "✅ $file created"
+        if cp "$source_file" "$file"; then
+            echo "✅ $file created successfully"
+        else
+            echo "❌ Failed to copy $source_file to $file"
+        fi
     else
         echo "⚠️  $source_file not found, skipping $file"
+        echo "🔍 Directory contents:"
+        ls -la "$(dirname "$source_file")" || echo "Directory doesn't exist"
     fi
 }
 
