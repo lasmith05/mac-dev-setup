@@ -84,11 +84,10 @@ brew install \
     node \
     terraform \
     awscli \
-    docker \
+    --formula docker \
     git-lfs \
     neovim \
-    python3 \
-    python3-pip
+    python3
 
 # Install GUI applications via Homebrew Cask
 echo "🖥️ Installing GUI applications..."
