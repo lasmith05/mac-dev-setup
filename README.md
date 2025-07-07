@@ -76,7 +76,8 @@ dev-setup/
 
 ### macOS
 - **Package Manager**: Homebrew
-- **Applications**: Visual Studio Code, Docker Desktop, Xcode Command Line Tools
+- **Applications**: Visual Studio Code, Xcode Command Line Tools
+- **Docker**: CLI included (Docker Desktop available for manual install)
 - **Shell**: Native zsh with Oh My Zsh
 - **Terminal**: Enhanced with tmux and modern CLI tools
 

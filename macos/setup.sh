@@ -94,16 +94,8 @@ brew install \
 echo "🖥️ Installing GUI applications..."
 brew install --cask visual-studio-code || echo "⚠️ Visual Studio Code installation had issues, continuing..."
 
-# Check if Docker Desktop is already installed to avoid conflicts
-if ! brew list --cask docker-desktop &>/dev/null; then
-    echo "🐳 Installing Docker Desktop..."
-    if ! brew install --cask docker-desktop 2>/dev/null; then
-        echo "⚠️ Docker Desktop installation failed due to conflicts, skipping..."
-        echo "💡 You can install Docker Desktop manually from https://www.docker.com/products/docker-desktop"
-    fi
-else
-    echo "✅ Docker Desktop already installed"
-fi
+echo "💡 Note: Docker CLI is installed via brew. For Docker Desktop GUI, install manually from:"
+echo "   https://www.docker.com/products/docker-desktop"
 
 # Install Xcode Command Line Tools
 echo "🛠️ Installing Xcode Command Line Tools..."
