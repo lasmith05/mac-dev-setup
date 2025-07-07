@@ -21,8 +21,10 @@ dev-setup/
 │   └── ubuntu-setup.sh      # Ubuntu WSL2 setup script
 └── dotfiles/
     ├── .tmux.conf           # Tmux configuration
-    ├── .vimrc              # Vim configuration
-    └── .zshrc.custom       # Zsh configuration
+    ├── .vimrc              # Traditional Vim configuration
+    ├── .zshrc.custom       # Zsh configuration
+    ├── init.vim            # Neovim configuration with plugins
+    └── coc-settings.json   # COC.nvim LSP settings
 ```
 
 ### Setup Process Flow
@@ -123,11 +125,13 @@ git config --global user.email "your.email@example.com"
 - TPM with productivity plugins (sensible, yank, resurrect, continuum)
 - Mouse support and modern terminal features
 
-**Vim Configuration (`.vimrc`)**:
-- Modern editing features (relative line numbers, syntax highlighting, smart indentation)
-- Development-focused key mappings (jj for Esc, Ctrl+s save, window navigation)
-- File handling (automatic backup, undo history, trailing whitespace removal)
-- File type specific settings (Python, JavaScript, HTML, CSS, YAML, JSON)
+**Vim Configuration (`.vimrc` + `init.vim`)**:
+- **Traditional Vim** (`.vimrc`): Basic configuration with modern features (relative line numbers, syntax highlighting, smart indentation)
+- **Neovim** (`init.vim`): Advanced configuration with plugin ecosystem (NERDTree, FZF, COC.nvim, vim-airline)
+- **LSP Support** (`coc-settings.json`): Language server configurations for Python, Terraform with linting and formatting
+- **Key Mappings**: jj for Esc, Ctrl+s save, window navigation, space as leader key
+- **File Handling**: Automatic backup, undo history, trailing whitespace removal, auto-formatting on save
+- **Language Support**: Python (Black, isort, pylint), Terraform, JavaScript/TypeScript with specific tab settings
 
 ## Development Tools Installed
 
@@ -149,6 +153,15 @@ git config --global user.email "your.email@example.com"
 - **Languages**: Python, TypeScript, Rust, PowerShell
 - **Tools**: Docker, Terraform, Jupyter, GitHub Copilot
 - **Productivity**: Markdown Preview Enhanced
+
+### Neovim Plugins
+- **File Management**: NERDTree with syntax highlighting and devicons
+- **Fuzzy Finding**: FZF for files, buffers, and content search
+- **Language Support**: COC.nvim for LSP, vim-polyglot for syntax, terraform plugin
+- **Python Development**: python-mode, Black formatter, isort
+- **Git Integration**: vim-fugitive, vim-gitgutter, vim-rhubarb
+- **Code Enhancement**: vim-commentary, vim-surround, auto-pairs, ALE linter
+- **UI Enhancement**: vim-airline status line, gruvbox/dracula themes
 
 ## Cross-Platform Considerations
 
@@ -211,3 +224,85 @@ Both setup scripts include comprehensive verification that validates:
 - Plugin manager installations (Oh My Zsh, TPM)
 - Shell configuration integration
 - File permissions and accessibility
+
+## Key Commands and Shortcuts
+
+### Shell Aliases (from `.zshrc.custom`)
+```bash
+# Modern CLI replacements
+ls          # eza with icons
+ll          # eza -la with git status
+cat         # bat with syntax highlighting
+find        # fd (faster find)
+grep        # rg (ripgrep)
+vim/vi      # nvim (Neovim)
+top         # htop (better process viewer)
+
+# Git shortcuts
+gs          # git status
+ga          # git add
+gc          # git commit
+gp          # git push
+gl          # git log --oneline --graph --decorate --all
+gd          # git diff
+gb          # git branch
+gco         # git checkout
+
+# Terraform shortcuts
+tf          # terraform
+tfa         # terraform apply
+tfp         # terraform plan
+tfi         # terraform init
+tfd         # terraform destroy
+tfv         # terraform validate
+tff         # terraform fmt
+
+# tmux shortcuts
+t           # tmux
+ta          # tmux attach
+tl          # tmux list-sessions
+tk          # tmux kill-session
+```
+
+### Tmux Key Bindings (`.tmux.conf`)
+```bash
+# Prefix: Ctrl+a (instead of Ctrl+b)
+Ctrl+a |    # Split vertically
+Ctrl+a -    # Split horizontally
+Ctrl+a h/j/k/l  # Navigate panes (vim-style)
+Ctrl+a H/J/K/L  # Resize panes (vim-style)
+Ctrl+a I    # Install plugins (after first setup)
+```
+
+### Neovim Key Bindings (`init.vim`)
+```bash
+# Leader key: Space
+jj          # Exit insert mode
+Space+w     # Save file
+Space+q     # Quit file
+Space+n     # Toggle NERDTree
+Space+f     # Find file in NERDTree
+Space+p     # FZF file search
+Space+b     # FZF buffer search
+Space+g     # FZF ripgrep search
+Space+t     # Toggle Tagbar
+Space+gs    # Git status
+Space+ga    # Git add all
+Space+gc    # Git commit
+Space+gp    # Git push
+Space+gl    # Git log
+gd          # Go to definition (COC)
+gr          # Go to references (COC)
+K           # Show documentation (COC)
+Ctrl+h/j/k/l # Navigate windows
+```
+
+### Custom Shell Functions
+```bash
+mkcd <dir>      # Make directory and cd into it
+extract <file>  # Extract any archive format
+weather <city>  # Get weather for city
+ff <pattern>    # Find files matching pattern
+gcommit "msg"   # Git add all and commit with message
+gnew <branch>   # Create and switch to new git branch
+```
