@@ -80,14 +80,27 @@ brew install \
 
 # Install development languages and tools
 echo "🛠️ Installing development languages and tools..."
-brew install \
-    node \
-    terraform \
-    awscli \
-    --formula docker \
-    git-lfs \
-    neovim \
-    python3
+
+# Check for tfenv conflict before installing terraform
+if command_exists tfenv; then
+    echo "⚠️  tfenv detected. Skipping terraform installation (use 'tfenv install latest' instead)"
+    brew install \
+        node \
+        awscli \
+        --formula docker \
+        git-lfs \
+        neovim \
+        python3
+else
+    brew install \
+        node \
+        terraform \
+        awscli \
+        --formula docker \
+        git-lfs \
+        neovim \
+        python3
+fi
 
 # Install GUI applications via Homebrew Cask
 echo "🖥️ Installing GUI applications..."
@@ -269,7 +282,11 @@ command_exists rg && echo "✅ ripgrep installed" || echo "❌ ripgrep missing"
 command_exists fd && echo "✅ fd installed" || echo "❌ fd missing"
 command_exists fzf && echo "✅ fzf installed" || echo "❌ fzf missing"
 command_exists aws && echo "✅ aws cli installed" || echo "❌ aws cli missing"
-command_exists terraform && echo "✅ terraform installed" || echo "❌ terraform missing"
+if command_exists tfenv; then
+    echo "✅ terraform managed by tfenv (use 'tfenv install latest' to install terraform)"
+else
+    command_exists terraform && echo "✅ terraform installed" || echo "❌ terraform missing"
+fi
 command_exists node && echo "✅ node.js installed" || echo "❌ node.js missing"
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"

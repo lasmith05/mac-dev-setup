@@ -48,7 +48,7 @@ dev-setup/
 - Phase 1: WSL2 installation and Windows applications via winget
 - Phase 2: Ubuntu development environment setup with dotfiles
 
-## Common Setup Commands
+## Development Commands
 
 ### Quick Start
 ```bash
@@ -61,6 +61,36 @@ chmod +x macos/setup.sh && ./macos/setup.sh
 # Windows (manual)
 ./windows/windows-setup.ps1  # as Administrator
 ./windows/ubuntu-setup.sh    # in WSL2 Ubuntu
+```
+
+### Script Testing and Validation
+```bash
+# Test script syntax (macOS)
+bash -n macos/setup.sh
+
+# Test PowerShell syntax (Windows)
+powershell -NoProfile -Command "& {Get-Content 'windows/windows-setup.ps1' | Out-String | Invoke-Expression}"
+
+# Verify dotfiles exist before running setup
+ls -la dotfiles/
+
+# Test individual dotfile configurations
+tmux -f dotfiles/.tmux.conf
+vim -u dotfiles/.vimrc
+zsh -c "source dotfiles/.zshrc.custom && alias"
+```
+
+### Debugging Setup Issues
+```bash
+# Check what failed during setup (macOS)
+brew doctor                           # Homebrew issues
+echo $SHELL                          # Current shell
+ls -la ~/.oh-my-zsh                  # Oh My Zsh installation
+
+# WSL debugging (Windows)
+wsl --list --verbose                 # WSL status
+wsl --status                         # WSL service status
+wsl -d Ubuntu-24.04 -- echo "test"  # Test Ubuntu access
 ```
 
 ### Post-Setup Verification
@@ -88,6 +118,31 @@ git config --global user.email "your.email@example.com"
 ```
 
 ## Key Components
+
+### Script Architecture Patterns
+
+**Error Handling Strategy:**
+- All scripts use `set -e` (exit on error) for fail-fast behavior
+- Comprehensive verification functions (`command_exists()`, `verify_file()`)
+- Platform detection with graceful fallbacks
+- Silent installation with error reporting
+
+**Dynamic Path Resolution:**
+Both macOS and Ubuntu scripts use consistent path resolution to locate dotfiles regardless of execution context:
+```bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")/dotfiles"
+```
+
+**Installation Verification Pattern:**
+Every major installation is followed by verification:
+```bash
+# Install something
+brew install package_name
+
+# Verify installation
+command_exists package_name && echo "✅ package installed" || echo "❌ package missing"
+```
 
 ### Platform-Specific Setup Scripts
 
@@ -117,6 +172,8 @@ git config --global user.email "your.email@example.com"
 - Git shortcuts (gs, ga, gc, gp, gl, gd, gb, gco)
 - Terraform shortcuts (tf, tfa, tfp, tfi, tfd, tfv, tff)
 - Productivity functions (mkcd, extract, weather, ff, fd, gcommit, gnew)
+- Plugin configuration: git, zsh-autosuggestions, zsh-syntax-highlighting, fzf, terraform, docker, node, npm
+- Custom environment variables and PATH modifications for development tools
 
 **Tmux Configuration (`.tmux.conf`)**:
 - Prefix key: Ctrl+a (instead of default Ctrl+b)
@@ -124,6 +181,8 @@ git config --global user.email "your.email@example.com"
 - Intuitive split commands (| for vertical, - for horizontal)
 - TPM with productivity plugins (sensible, yank, resurrect, continuum)
 - Mouse support and modern terminal features
+- Status bar with CPU, battery, and time information
+- Advanced plugins: tmux-fzf, tmux-thumbs, tmux-sidebar
 
 **Vim Configuration (`.vimrc` + `init.vim`)**:
 - **Traditional Vim** (`.vimrc`): Basic configuration with modern features (relative line numbers, syntax highlighting, smart indentation)
@@ -132,6 +191,7 @@ git config --global user.email "your.email@example.com"
 - **Key Mappings**: jj for Esc, Ctrl+s save, window navigation, space as leader key
 - **File Handling**: Automatic backup, undo history, trailing whitespace removal, auto-formatting on save
 - **Language Support**: Python (Black, isort, pylint), Terraform, JavaScript/TypeScript with specific tab settings
+- **Mouse Support**: Terminal integration and modern editing features
 
 ## Development Tools Installed
 
@@ -306,3 +366,50 @@ ff <pattern>    # Find files matching pattern
 gcommit "msg"   # Git add all and commit with message
 gnew <branch>   # Create and switch to new git branch
 ```
+
+## Common Customization Patterns
+
+### Adding New Tools to Setup Scripts
+
+**macOS (`macos/setup.sh`):**
+```bash
+# Add to the appropriate brew install section
+brew install new-tool
+
+# Add verification
+command_exists new-tool && echo "✅ new-tool installed" || echo "❌ new-tool missing"
+```
+
+**Windows/Ubuntu (`windows/ubuntu-setup.sh`):**
+```bash
+# Add to apt install section
+sudo apt install -y new-tool
+
+# Add verification
+verify_command new-tool
+```
+
+### Modifying Dotfiles
+
+**Adding shell aliases (`.zshrc.custom`):**
+```bash
+# Development shortcuts
+alias myproject='cd ~/projects/myproject'
+alias serve8080='python3 -m http.server 8080'
+alias dockerclean='docker system prune -af'
+```
+
+**Adding tmux key bindings (`.tmux.conf`):**
+```bash
+# Custom pane switching
+bind-key M-h select-pane -L
+bind-key M-l select-pane -R
+```
+
+### Script Modification Best Practices
+
+- Always test changes with syntax checkers before running
+- Use the verification functions (`command_exists`, `verify_file`) for new installations
+- Maintain the error handling pattern (`set -e` and explicit error checking)
+- Update the final verification section when adding new tools
+- Follow the platform-specific patterns (Homebrew for macOS, apt for Ubuntu)
