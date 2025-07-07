@@ -1,0 +1,63 @@
+{
+  "suggest.noselect": false,
+  "suggest.enablePreview": true,
+  "suggest.enablePreselect": false,
+  "suggest.maxCompleteItemCount": 20,
+  
+  "diagnostic.enable": true,
+  "diagnostic.level": "information",
+  "diagnostic.checkCurrentLine": true,
+  
+  "python.defaultInterpreter": "python3",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": ["--line-length=88"],
+  
+  "terraform.languageServer": {
+    "external": true,
+    "filetypes": ["terraform"],
+    "command": "terraform-ls",
+    "args": ["serve"],
+    "rootPatterns": [".terraform", "*.tf"]
+  },
+  
+  "languageserver": {
+    "terraform": {
+      "command": "terraform-ls",
+      "args": ["serve"],
+      "filetypes": ["terraform"],
+      "initializationOptions": {},
+      "settings": {}
+    },
+    "python": {
+      "command": "pylsp",
+      "args": ["-v", "--log-file", "/tmp/pylsp.log"],
+      "filetypes": ["python"],
+      "settings": {
+        "pylsp": {
+          "plugins": {
+            "pycodestyle": {
+              "enabled": true,
+              "maxLineLength": 88
+            },
+            "pylint": {
+              "enabled": true
+            },
+            "flake8": {
+              "enabled": true,
+              "maxLineLength": 88
+            },
+            "black": {
+              "enabled": true
+            },
+            "isort": {
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -85,7 +85,10 @@ brew install \
     terraform \
     awscli \
     docker \
-    git-lfs
+    git-lfs \
+    neovim \
+    python3 \
+    python3-pip
 
 # Install GUI applications via Homebrew Cask
 echo "🖥️ Installing GUI applications..."
@@ -172,6 +175,12 @@ create_dotfile ~/.tmux.conf "$DOTFILES_DIR/.tmux.conf"
 create_dotfile ~/.vimrc "$DOTFILES_DIR/.vimrc"
 create_dotfile ~/.zshrc.custom "$DOTFILES_DIR/.zshrc.custom"
 
+# Set up Neovim configuration
+echo "📝 Setting up Neovim configuration..."
+mkdir -p ~/.config/nvim
+create_dotfile ~/.config/nvim/init.vim "$DOTFILES_DIR/init.vim"
+create_dotfile ~/.config/nvim/coc-settings.json "$DOTFILES_DIR/coc-settings.json"
+
 # Verify dotfiles were created
 echo "🔍 Verifying dotfiles..."
 verify_file ~/.tmux.conf || echo "⚠️  .tmux.conf not created"
@@ -213,6 +222,10 @@ fi
 # Install fzf key bindings and fuzzy completion
 echo "🔍 Setting up fzf integration..."
 $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc
+
+# Install Python development packages
+echo "🐍 Installing Python development packages..."
+pip3 install --user black flake8 pylint isort python-lsp-server[all] || echo "⚠️ Some Python packages failed to install"
 
 # Install VS Code extensions
 echo "🧩 Installing VS Code extensions..."
@@ -257,6 +270,8 @@ command_exists fzf && echo "✅ fzf installed" || echo "❌ fzf missing"
 command_exists aws && echo "✅ aws cli installed" || echo "❌ aws cli missing"
 command_exists terraform && echo "✅ terraform installed" || echo "❌ terraform missing"
 command_exists node && echo "✅ node.js installed" || echo "❌ node.js missing"
+command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
+command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
 command_exists code && echo "✅ visual studio code installed" || echo "❌ visual studio code missing"
 
 # Verify dotfiles
@@ -265,6 +280,8 @@ echo "📄 Checking dotfiles..."
 verify_file ~/.tmux.conf
 verify_file ~/.vimrc
 verify_file ~/.zshrc.custom
+verify_file ~/.config/nvim/init.vim
+verify_file ~/.config/nvim/coc-settings.json
 
 # Check if Oh My Zsh is installed
 if [ -d "$HOME/.oh-my-zsh" ]; then
@@ -298,6 +315,7 @@ echo "4. 🧪 Test your setup:"
 echo "   ls    # Should show colorful output with icons"
 echo "   cat ~/.zshrc  # Should show syntax highlighting"
 echo "   tmux  # Should start with mouse support"
+echo "   nvim  # Should open Neovim with plugins"
 echo "   code  # Should open Visual Studio Code"
 echo "5. 📱 Install full Xcode from the App Store if needed"
 echo ""

@@ -53,7 +53,11 @@ sudo apt install -y \
     ca-certificates \
     gnupg \
     lsb-release \
-    unzip
+    unzip \
+    neovim \
+    python3 \
+    python3-pip \
+    python3-venv
 
 # Install quality of life CLI tools
 echo "✨ Installing quality of life CLI tools..."
@@ -130,6 +134,12 @@ create_dotfile ~/.tmux.conf "$DOTFILES_DIR/.tmux.conf"
 create_dotfile ~/.vimrc "$DOTFILES_DIR/.vimrc"
 create_dotfile ~/.zshrc.custom "$DOTFILES_DIR/.zshrc.custom"
 
+# Set up Neovim configuration
+echo "📝 Setting up Neovim configuration..."
+mkdir -p ~/.config/nvim
+create_dotfile ~/.config/nvim/init.vim "$DOTFILES_DIR/init.vim"
+create_dotfile ~/.config/nvim/coc-settings.json "$DOTFILES_DIR/coc-settings.json"
+
 # Verify dotfiles were created
 echo "🔍 Verifying dotfiles..."
 verify_file ~/.tmux.conf || echo "⚠️  .tmux.conf not created"
@@ -159,6 +169,10 @@ if [ -f "$HOME/.tmux.conf" ]; then
     tmux kill-session -t setup 2>/dev/null || true
 fi
 
+# Install Python development packages
+echo "🐍 Installing Python development packages..."
+pip3 install --user black flake8 pylint isort python-lsp-server[all] || echo "⚠️ Some Python packages failed to install"
+
 echo ""
 echo "🎉 Ubuntu development environment setup complete!"
 echo ""
@@ -175,6 +189,8 @@ command_exists rg && echo "✅ ripgrep installed" || echo "❌ ripgrep missing"
 command_exists fd && echo "✅ fd installed" || echo "❌ fd missing"
 command_exists fzf && echo "✅ fzf installed" || echo "❌ fzf missing"
 command_exists aws && echo "✅ aws cli installed" || echo "❌ aws cli missing"
+command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
+command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
 
 # Verify dotfiles
 echo ""
@@ -182,6 +198,8 @@ echo "📄 Checking dotfiles..."
 verify_file ~/.tmux.conf
 verify_file ~/.vimrc
 verify_file ~/.zshrc.custom
+verify_file ~/.config/nvim/init.vim
+verify_file ~/.config/nvim/coc-settings.json
 
 # Check if Oh My Zsh is installed
 if [ -d "$HOME/.oh-my-zsh" ]; then
@@ -213,8 +231,9 @@ echo "   git config --global user.name 'Your Name'"
 echo "   git config --global user.email 'your.email@example.com'"
 echo "4. 🧪 Test your setup:"
 echo "   ls    # Should show colorful output with icons"
-echo "   cat ~/.bashrc  # Should show syntax highlighting"
+echo "   cat ~/.zshrc  # Should show syntax highlighting"
 echo "   tmux  # Should start with mouse support"
+echo "   nvim  # Should open Neovim with plugins"
 echo ""
 echo "🛠️  If any items show ❌, you may need to run parts of the setup manually."
 echo "🎯  For issues, check the GitHub repository README for troubleshooting."
