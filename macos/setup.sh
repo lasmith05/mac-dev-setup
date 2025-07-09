@@ -244,7 +244,22 @@ $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc
 
 # Install Python development packages
 echo "🐍 Installing Python development packages..."
-pip3 install --user black flake8 pylint isort python-lsp-server[all] || echo "⚠️ Some Python packages failed to install"
+# Check if Python environment is externally managed
+if pip3 install --user --dry-run black 2>&1 | grep -q "externally-managed-environment"; then
+    echo "⚠️ Python environment is externally managed. Installing via pipx instead..."
+    if ! command_exists pipx; then
+        brew install pipx
+    fi
+    pipx install black
+    pipx install flake8
+    pipx install pylint
+    pipx install isort
+    # Install pynvim for Neovim Python support
+    pip3 install --user --break-system-packages pynvim || echo "⚠️ pynvim installation failed"
+    echo "✅ Python packages installed via pipx"
+else
+    pip3 install --user black flake8 pylint isort python-lsp-server[all] pynvim || echo "⚠️ Some Python packages failed to install"
+fi
 
 # Install VS Code extensions
 echo "🧩 Installing VS Code extensions..."
