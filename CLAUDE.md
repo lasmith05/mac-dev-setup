@@ -27,8 +27,8 @@ mac-dev-setup/
     ├── .tmux.conf          # Tmux (Ctrl+a prefix, vim navigation)
     ├── .vimrc              # Vim configuration
     ├── .zshrc.custom       # Shell aliases and functions
-    ├── init.vim            # Neovim with plugins
-    └── coc-settings.json   # LSP configuration
+    ├── init.vim            # Neovim with vim-plug and plugins
+    └── coc-settings.json   # COC.nvim LSP configuration
 ```
 
 ## Development Commands
@@ -59,6 +59,14 @@ node --version && terraform --version && aws --version
 brew doctor     # macOS Homebrew issues
 echo $SHELL     # Current shell
 wsl --list --verbose  # WSL status (Windows)
+
+# Check externally managed Python environments
+python3 -m pip --version  # Should show pip version
+python3 -c "import sys; print(sys.prefix)"  # Show Python environment
+
+# Verify tmux plugins
+tmux show-environment | grep TMUX  # Check tmux environment
+ls ~/.tmux/plugins/  # List installed plugins
 ```
 
 ### Development Testing
@@ -94,6 +102,8 @@ command_exists package_name && echo "✅ installed" || echo "❌ missing"
 **Shell (`.zshrc.custom`)**: Modern CLI aliases, git shortcuts, terraform shortcuts, productivity functions
 **Tmux (`.tmux.conf`)**: Ctrl+a prefix, vim navigation, mouse support, TPM plugins
 **Vim (`.vimrc` + `init.vim`)**: Traditional vim + Neovim with COC.nvim LSP support
+**Neovim (`init.vim`)**: Modern IDE-like setup with vim-plug auto-installation, plugins (NERDTree, FZF, COC.nvim, ALE, vim-fugitive), LSP, git integration, file management
+**COC Settings (`coc-settings.json`)**: Language server configuration for Python, Terraform, JSON, YAML with diagnostics, completion, and formatting
 
 ## Development Tools Installed
 
@@ -102,12 +112,14 @@ command_exists package_name && echo "✅ installed" || echo "❌ missing"
 - **Infrastructure**: Terraform, AWS CLI, Docker
 - **Version Control**: Git with Git LFS
 - **Editors**: VS Code with extensions, Vim/Neovim
+- **Fonts**: FiraCode Nerd Font with programming ligatures and icons
 
 ### Modern CLI Tools
 - **File Operations**: eza (ls), bat (cat), fd (find)
 - **Search**: ripgrep (grep), fzf (fuzzy finder)
 - **System**: htop, tree, jq, tldr
 - **Terminal**: tmux with TPM
+- **Python**: pipx for isolated package installation
 
 ## Essential Aliases and Shortcuts
 
@@ -144,6 +156,19 @@ tfp='terraform plan'
 - `extract <file>` - Extract any archive format
 - `gcommit "msg"` - Git add all and commit with message
 - `gnew <branch>` - Create and switch to new git branch
+- `weather <location>` - Get weather information via wttr.in
+- `ff <pattern>` - Find files matching pattern
+- `fd <pattern>` - Find directories matching pattern
+
+### Neovim Key Bindings (init.vim)
+- Leader key: `Space`
+- `<leader>n` - Toggle NERDTree file explorer
+- `<leader>p` - Open file finder (FZF)
+- `<leader>g` - Search in files (ripgrep)
+- `<leader>gs` - Git status
+- `<leader>t` - Toggle Tagbar
+- `gd` - Go to definition (COC)
+- `K` - Show documentation (COC)
 
 ## Common Development Patterns
 
@@ -161,3 +186,49 @@ tfp='terraform plan'
 - Use dynamic path resolution pattern for dotfiles location
 - Handle line endings (Ubuntu script converts Windows → Unix)
 - Ensure consistent shell configuration sourcing across platforms
+
+## Troubleshooting and Debugging
+
+### Common Issues and Solutions
+
+**tfenv Conflicts**: The macOS setup script automatically detects tfenv and skips terraform installation to avoid conflicts. Use `tfenv install latest` if tfenv is present.
+
+**Externally Managed Python**: macOS may show "externally managed environment" warnings. This is normal and handled by the setup scripts.
+
+**Tmux Plugin Installation**: After setup, manually install plugins with `tmux` then `Ctrl+a I`. If plugins don't load, check `.tmux/plugins/tpm` exists.
+
+**Shell Changes**: If zsh doesn't become default, manually run `chsh -s $(which zsh)` and restart terminal.
+
+**COC.nvim Setup**: First time opening Neovim, run `:CocInstall coc-python coc-json coc-yaml coc-terraform` for language support. If COC servers don't start, check `:CocInfo` for diagnostics.
+
+**Neovim Plugin Installation**: Plugins are auto-installed via vim-plug. If plugins are missing, run `:PlugInstall` in Neovim.
+
+### Debugging Commands
+```bash
+# Check file permissions and existence
+ls -la dotfiles/
+file dotfiles/.zshrc.custom  # Check file type
+
+# Test shell configuration
+zsh -c "source dotfiles/.zshrc.custom && echo 'Config loaded'"
+
+# Verify PATH modifications
+echo $PATH | tr ':' '\n' | grep -E "(cargo|local)"
+
+# Check tmux configuration
+tmux -f dotfiles/.tmux.conf list-keys | head -10
+
+# Test vim configuration
+vim -u dotfiles/.vimrc --version
+nvim -u dotfiles/init.vim --version
+
+# Check COC.nvim status
+nvim -c ":CocInfo" -c ":q"
+nvim -c ":CocList extensions" -c ":q"
+
+# Check FiraCode Nerd Font installation
+# macOS
+ls ~/Library/Fonts/FiraCode* 2>/dev/null || ls /Library/Fonts/FiraCode* 2>/dev/null
+# Ubuntu/WSL
+ls ~/.local/share/fonts/FiraCode* 2>/dev/null
+```

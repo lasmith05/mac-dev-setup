@@ -106,6 +106,11 @@ fi
 echo "🖥️ Installing GUI applications..."
 brew install --cask visual-studio-code || echo "⚠️ Visual Studio Code installation had issues, continuing..."
 
+# Install FiraCode Nerd Font
+echo "🔤 Installing FiraCode Nerd Font..."
+brew tap homebrew/cask-fonts
+brew install --cask font-fira-code-nerd-font || echo "⚠️ FiraCode Nerd Font installation had issues, continuing..."
+
 echo "💡 Note: Docker CLI is installed via brew. For Docker Desktop GUI, install manually from:"
 echo "   https://www.docker.com/products/docker-desktop"
 
@@ -311,6 +316,13 @@ command_exists node && echo "✅ node.js installed" || echo "❌ node.js missing
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
 command_exists code && echo "✅ visual studio code installed" || echo "❌ visual studio code missing"
+
+# Check if FiraCode Nerd Font is installed
+if ls ~/Library/Fonts/FiraCode* >/dev/null 2>&1 || ls /Library/Fonts/FiraCode* >/dev/null 2>&1 || ls /System/Library/Fonts/FiraCode* >/dev/null 2>&1; then
+    echo "✅ FiraCode Nerd Font installed"
+else
+    echo "❌ FiraCode Nerd Font missing"
+fi
 
 # Verify dotfiles
 echo ""

@@ -56,6 +56,11 @@ Write-Host "Installing TeamViewer (silent)..." -ForegroundColor Cyan
 winget install TeamViewer.TeamViewer --silent --accept-source-agreements --accept-package-agreements
 if ($LASTEXITCODE -eq 0) { Write-Host "✓ TeamViewer installed successfully" -ForegroundColor Green }
 
+# FiraCode Nerd Font
+Write-Host "Installing FiraCode Nerd Font (silent)..." -ForegroundColor Cyan
+winget install DEVCOM.FiraCodeNerdFont --silent --accept-source-agreements --accept-package-agreements
+if ($LASTEXITCODE -eq 0) { Write-Host "✓ FiraCode Nerd Font installed successfully" -ForegroundColor Green }
+
 Write-Host ""
 Write-Host "Windows setup complete!" -ForegroundColor Green
 Write-Host "All applications were installed silently without user interaction." -ForegroundColor Green

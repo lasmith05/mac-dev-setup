@@ -111,6 +111,38 @@ if ! command -v aws &> /dev/null; then
     rm -rf awscliv2.zip aws/
 fi
 
+# Install FiraCode Nerd Font
+echo "🔤 Installing FiraCode Nerd Font..."
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+curl -fLo "FiraCode Bold Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Bold/FiraCodeNerdFont-Bold.ttf
+curl -fLo "FiraCode Bold Italic Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/BoldItalic/FiraCodeNerdFont-BoldItalic.ttf
+curl -fLo "FiraCode Light Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Light/FiraCodeNerdFont-Light.ttf
+curl -fLo "FiraCode Light Italic Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/LightItalic/FiraCodeNerdFont-LightItalic.ttf
+curl -fLo "FiraCode Medium Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Medium/FiraCodeNerdFont-Medium.ttf
+curl -fLo "FiraCode Medium Italic Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/MediumItalic/FiraCodeNerdFont-MediumItalic.ttf
+curl -fLo "FiraCode Regular Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Regular/FiraCodeNerdFont-Regular.ttf
+curl -fLo "FiraCode Regular Italic Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/RegularItalic/FiraCodeNerdFont-RegularItalic.ttf
+curl -fLo "FiraCode Retina Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Retina/FiraCodeNerdFont-Retina.ttf
+curl -fLo "FiraCode Retina Italic Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/RetinaItalic/FiraCodeNerdFont-RetinaItalic.ttf
+curl -fLo "FiraCode SemiBold Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/SemiBold/FiraCodeNerdFont-SemiBold.ttf
+curl -fLo "FiraCode SemiBold Italic Nerd Font Complete.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/SemiBoldItalic/FiraCodeNerdFont-SemiBoldItalic.ttf
+fc-cache -fv
+cd -
+echo "✅ FiraCode Nerd Font installed"
+
 # Set up dotfiles with proper line endings
 echo "📝 Setting up dotfiles..."
 
@@ -191,6 +223,13 @@ command_exists fzf && echo "✅ fzf installed" || echo "❌ fzf missing"
 command_exists aws && echo "✅ aws cli installed" || echo "❌ aws cli missing"
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
+
+# Check if FiraCode Nerd Font is installed
+if ls ~/.local/share/fonts/FiraCode* >/dev/null 2>&1; then
+    echo "✅ FiraCode Nerd Font installed"
+else
+    echo "❌ FiraCode Nerd Font missing"
+fi
 
 # Verify dotfiles
 echo ""
