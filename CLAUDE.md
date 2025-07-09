@@ -4,412 +4,160 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a cross-platform development environment setup repository containing automation scripts and configuration files for setting up consistent development environments on macOS and Windows (with WSL2 Ubuntu). The repository provides unified dotfiles and platform-specific setup scripts to ensure consistent development experience across operating systems.
+Cross-platform development environment setup repository with automation scripts and dotfiles for consistent development environments on macOS and Windows (WSL2 Ubuntu). The key insight is unified configuration through shared dotfiles with platform-specific installation scripts.
 
 ## Architecture
 
-### Multi-Platform Structure
-The repository follows a clean, organized structure with platform-specific directories and unified configuration:
-
-```
-dev-setup/
-├── macos/
-│   └── setup.sh             # macOS setup script
-├── windows/
-│   ├── setup.bat            # Windows batch wrapper (recommended)
-│   ├── windows-setup.ps1    # Windows PowerShell script  
-│   └── ubuntu-setup.sh      # Ubuntu WSL2 setup script
-└── dotfiles/
-    ├── .tmux.conf           # Tmux configuration
-    ├── .vimrc              # Traditional Vim configuration
-    ├── .zshrc.custom       # Zsh configuration
-    ├── init.vim            # Neovim configuration with plugins
-    └── coc-settings.json   # COC.nvim LSP settings
-```
-
-### Setup Process Flow
-
-**macOS (Single-Phase):**
+### Core Pattern: Dynamic Path Resolution
+All setup scripts use this critical pattern to locate dotfiles regardless of execution context:
 ```bash
-./macos/setup.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")/dotfiles"
 ```
-- Uses Homebrew for package management
-- Installs native macOS applications
-- Direct dotfile setup from `dotfiles/` directory
 
-**Windows (Two-Phase):**
-```batch
-# Phase 1: Windows environment (as Administrator)
-./windows/setup.bat  # or ./windows/windows-setup.ps1
-
-# Phase 2: Ubuntu environment (in WSL2)
-./windows/ubuntu-setup.sh
+### Structure
 ```
-- Phase 1: WSL2 installation and Windows applications via winget
-- Phase 2: Ubuntu development environment setup with dotfiles
+mac-dev-setup/
+├── macos/setup.sh           # macOS Homebrew-based setup
+├── windows/
+│   ├── setup.bat           # Windows batch wrapper (recommended)
+│   ├── windows-setup.ps1   # WSL2 + Windows apps via winget
+│   └── ubuntu-setup.sh     # Ubuntu development environment
+└── dotfiles/               # Unified configuration files
+    ├── .tmux.conf          # Tmux (Ctrl+a prefix, vim navigation)
+    ├── .vimrc              # Vim configuration
+    ├── .zshrc.custom       # Shell aliases and functions
+    ├── init.vim            # Neovim with plugins
+    └── coc-settings.json   # LSP configuration
+```
 
 ## Development Commands
 
-### Quick Start
+### Setup Commands
 ```bash
-# macOS
+# macOS setup
 chmod +x macos/setup.sh && ./macos/setup.sh
 
-# Windows (recommended)
-# Right-click windows/setup.bat and "Run as administrator"
+# Windows setup (run as Administrator)
+./windows/setup.bat  # or ./windows/windows-setup.ps1
+./windows/ubuntu-setup.sh  # in WSL2 Ubuntu after restart
 
-# Windows (manual)
-./windows/windows-setup.ps1  # as Administrator
-./windows/ubuntu-setup.sh    # in WSL2 Ubuntu
+# Test script syntax
+bash -n macos/setup.sh
+bash -n windows/ubuntu-setup.sh
 ```
 
-### Script Testing and Validation
+### Validation Commands
 ```bash
-# Test script syntax (macOS)
-bash -n macos/setup.sh
+# Verify setup worked
+ls          # Should show eza with icons
+cat ~/.zshrc # Should show bat with syntax highlighting
+tmux        # Should start with Ctrl+a prefix
+node --version && terraform --version && aws --version
 
-# Test PowerShell syntax (Windows)
-powershell -NoProfile -Command "& {Get-Content 'windows/windows-setup.ps1' | Out-String | Invoke-Expression}"
+# Debug setup issues
+brew doctor     # macOS Homebrew issues
+echo $SHELL     # Current shell
+wsl --list --verbose  # WSL status (Windows)
+```
 
-# Verify dotfiles exist before running setup
-ls -la dotfiles/
-
-# Test individual dotfile configurations
+### Development Testing
+```bash
+# Test dotfiles independently
 tmux -f dotfiles/.tmux.conf
 vim -u dotfiles/.vimrc
 zsh -c "source dotfiles/.zshrc.custom && alias"
-```
-
-### Debugging Setup Issues
-```bash
-# Check what failed during setup (macOS)
-brew doctor                           # Homebrew issues
-echo $SHELL                          # Current shell
-ls -la ~/.oh-my-zsh                  # Oh My Zsh installation
-
-# WSL debugging (Windows)
-wsl --list --verbose                 # WSL status
-wsl --status                         # WSL service status
-wsl -d Ubuntu-24.04 -- echo "test"  # Test Ubuntu access
-```
-
-### Post-Setup Verification
-```bash
-# Test modern CLI tools
-ls          # Should show eza with icons
-cat ~/.zshrc # Should show bat with syntax highlighting
-tmux        # Should start with Ctrl+a prefix and mouse support
-
-# Test development tools
-node --version
-terraform --version
-aws --version
-code --version
-```
-
-### Post-Setup Configuration
-```bash
-# Git configuration
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-
-# Tmux plugin installation
-# Open tmux and press Ctrl+a then I
 ```
 
 ## Key Components
 
 ### Script Architecture Patterns
 
-**Error Handling Strategy:**
-- All scripts use `set -e` (exit on error) for fail-fast behavior
-- Comprehensive verification functions (`command_exists()`, `verify_file()`)
-- Platform detection with graceful fallbacks
-- Silent installation with error reporting
+**Error Handling**: All scripts use `set -e` (exit on error) with verification functions:
+- `command_exists()` - Check if command is available
+- `verify_file()` - Verify file exists and is readable
 
-**Dynamic Path Resolution:**
-Both macOS and Ubuntu scripts use consistent path resolution to locate dotfiles regardless of execution context:
+**Installation Pattern**: Install → Verify → Report
 ```bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_DIR="$(dirname "$SCRIPT_DIR")/dotfiles"
-```
-
-**Installation Verification Pattern:**
-Every major installation is followed by verification:
-```bash
-# Install something
 brew install package_name
-
-# Verify installation
-command_exists package_name && echo "✅ package installed" || echo "❌ package missing"
+command_exists package_name && echo "✅ installed" || echo "❌ missing"
 ```
 
 ### Platform-Specific Setup Scripts
 
-**macOS Setup (`macos/setup.sh`)**:
-- Installs Homebrew if not present
-- Uses `SCRIPT_DIR` and `DOTFILES_DIR` variables to locate dotfiles
-- Handles Apple Silicon and Intel Mac differences
-- Installs GUI applications via Homebrew Cask
-- Comprehensive verification and error handling
+**macOS (`macos/setup.sh`)**: Homebrew-based installation with Apple Silicon/Intel detection
+**Windows (`windows/setup.bat` + `windows-setup.ps1`)**: WSL2 installation + Windows apps via winget
+**Ubuntu (`windows/ubuntu-setup.sh`)**: apt-based installation with Windows→Unix line ending conversion
 
-**Windows Setup (`windows/setup.bat` + `windows-setup.ps1`)**:
-- Handles PowerShell execution policy automatically
-- Installs WSL2 with Ubuntu 24.04 LTS
-- Uses winget for Windows application installation
-- Provides detailed user guidance and error handling
+### Dotfiles Configuration
 
-**Ubuntu Setup (`windows/ubuntu-setup.sh`)**:
-- Uses `SCRIPT_DIR` and `DOTFILES_DIR` variables for cross-platform compatibility
-- Handles Windows→Unix line ending conversion
-- Installs modern CLI tools via apt and direct downloads
-- Comprehensive package verification
-
-### Unified Dotfiles (`dotfiles/`)
-
-**Shell Configuration (`.zshrc.custom`)**:
-- Modern CLI tool aliases (ls→eza, cat→bat, find→fd, grep→rg)
-- Git shortcuts (gs, ga, gc, gp, gl, gd, gb, gco)
-- Terraform shortcuts (tf, tfa, tfp, tfi, tfd, tfv, tff)
-- Productivity functions (mkcd, extract, weather, ff, fd, gcommit, gnew)
-- Plugin configuration: git, zsh-autosuggestions, zsh-syntax-highlighting, fzf, terraform, docker, node, npm
-- Custom environment variables and PATH modifications for development tools
-
-**Tmux Configuration (`.tmux.conf`)**:
-- Prefix key: Ctrl+a (instead of default Ctrl+b)
-- Vim-style pane navigation (h/j/k/l) and resizing (H/J/K/L)
-- Intuitive split commands (| for vertical, - for horizontal)
-- TPM with productivity plugins (sensible, yank, resurrect, continuum)
-- Mouse support and modern terminal features
-- Status bar with CPU, battery, and time information
-- Advanced plugins: tmux-fzf, tmux-thumbs, tmux-sidebar
-
-**Vim Configuration (`.vimrc` + `init.vim`)**:
-- **Traditional Vim** (`.vimrc`): Basic configuration with modern features (relative line numbers, syntax highlighting, smart indentation)
-- **Neovim** (`init.vim`): Advanced configuration with plugin ecosystem (NERDTree, FZF, COC.nvim, vim-airline)
-- **LSP Support** (`coc-settings.json`): Language server configurations for Python, Terraform with linting and formatting
-- **Key Mappings**: jj for Esc, Ctrl+s save, window navigation, space as leader key
-- **File Handling**: Automatic backup, undo history, trailing whitespace removal, auto-formatting on save
-- **Language Support**: Python (Black, isort, pylint), Terraform, JavaScript/TypeScript with specific tab settings
-- **Mouse Support**: Terminal integration and modern editing features
+**Shell (`.zshrc.custom`)**: Modern CLI aliases, git shortcuts, terraform shortcuts, productivity functions
+**Tmux (`.tmux.conf`)**: Ctrl+a prefix, vim navigation, mouse support, TPM plugins
+**Vim (`.vimrc` + `init.vim`)**: Traditional vim + Neovim with COC.nvim LSP support
 
 ## Development Tools Installed
 
-### Core Development Stack
-- **Languages**: Node.js (LTS), Rust with Cargo, Python 3
-- **Infrastructure**: Terraform, AWS CLI, Docker/Docker Desktop
-- **Version Control**: Git with Git LFS, configured for cross-platform
-- **Editors**: Visual Studio Code with comprehensive extension pack
+### Core Stack
+- **Languages**: Node.js (LTS), Rust, Python 3
+- **Infrastructure**: Terraform, AWS CLI, Docker
+- **Version Control**: Git with Git LFS
+- **Editors**: VS Code with extensions, Vim/Neovim
 
 ### Modern CLI Tools
-- **File Operations**: eza (colorful ls with icons), bat (syntax-highlighted cat), fd (smart find)
-- **Search**: ripgrep (fast grep), fzf (fuzzy finder with key bindings)
-- **System Utilities**: htop, tree, jq, tldr
-- **Terminal Enhancement**: tmux with TPM plugin manager
+- **File Operations**: eza (ls), bat (cat), fd (find)
+- **Search**: ripgrep (grep), fzf (fuzzy finder)
+- **System**: htop, tree, jq, tldr
+- **Terminal**: tmux with TPM
 
-### VS Code Extensions
-- **Remote Development**: SSH, Containers, WSL
-- **Version Control**: GitLens
-- **Languages**: Python, TypeScript, Rust, PowerShell
-- **Tools**: Docker, Terraform, Jupyter, GitHub Copilot
-- **Productivity**: Markdown Preview Enhanced
+## Essential Aliases and Shortcuts
 
-### Neovim Plugins
-- **File Management**: NERDTree with syntax highlighting and devicons
-- **Fuzzy Finding**: FZF for files, buffers, and content search
-- **Language Support**: COC.nvim for LSP, vim-polyglot for syntax, terraform plugin
-- **Python Development**: python-mode, Black formatter, isort
-- **Git Integration**: vim-fugitive, vim-gitgutter, vim-rhubarb
-- **Code Enhancement**: vim-commentary, vim-surround, auto-pairs, ALE linter
-- **UI Enhancement**: vim-airline status line, gruvbox/dracula themes
-
-## Cross-Platform Considerations
-
-### Path Resolution
-Both setup scripts use dynamic path resolution to locate dotfiles:
-```bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_DIR="$(dirname "$SCRIPT_DIR")/dotfiles"
-```
-
-### Line Ending Handling
-Ubuntu setup script automatically converts Windows line endings:
-```bash
-tr -d '\r' < "$source_file" > "$file"
-```
-
-### Shell Configuration
-Both platforms ensure zsh custom configuration is properly linked:
-```bash
-if ! grep -q "source ~/.zshrc.custom" ~/.zshrc 2>/dev/null; then
-    echo "source ~/.zshrc.custom" >> ~/.zshrc
-fi
-```
-
-## Error Handling and Verification
-
-### Setup Script Features
-- Exit on error (`set -e`) for fail-fast behavior
-- Command existence checking (`command_exists()`)
-- File verification (`verify_file()`)
-- Comprehensive installation verification
-- Platform-specific adaptation (macOS vs WSL detection)
-
-### Common Issues and Solutions
-
-**macOS**:
-- Shell change verification and manual fallback
-- Homebrew PATH configuration for Apple Silicon
-- Xcode Command Line Tools installation prompts
-
-**Windows/WSL2**:
-- PowerShell execution policy management
-- WSL2 installation status checking
-- Cross-platform file copying guidance
-
-## Development Workflow
-
-The setup creates a consistent development environment featuring:
-- **Enhanced Terminal**: tmux with vim-style navigation and modern plugins
-- **Modern CLI**: Quality-of-life improvements with colorful, fast tools
-- **Unified Shell**: Consistent aliases and functions across platforms
-- **Development Ready**: Pre-configured tools for multiple languages and platforms
-- **Cross-Platform**: Identical configuration files ensure consistent experience
-
-## Testing and Verification
-
-Both setup scripts include comprehensive verification that validates:
-- Installation of all required packages and tools
-- Creation and proper linking of dotfiles
-- Plugin manager installations (Oh My Zsh, TPM)
-- Shell configuration integration
-- File permissions and accessibility
-
-## Key Commands and Shortcuts
-
-### Shell Aliases (from `.zshrc.custom`)
+### Shell Aliases (from dotfiles/.zshrc.custom:20-50)
 ```bash
 # Modern CLI replacements
-ls          # eza with icons
-ll          # eza -la with git status
-cat         # bat with syntax highlighting
-find        # fd (faster find)
-grep        # rg (ripgrep)
-vim/vi      # nvim (Neovim)
-top         # htop (better process viewer)
+ls='eza --icons'
+cat='bat'
+find='fd'
+grep='rg'
 
 # Git shortcuts
-gs          # git status
-ga          # git add
-gc          # git commit
-gp          # git push
-gl          # git log --oneline --graph --decorate --all
-gd          # git diff
-gb          # git branch
-gco         # git checkout
+gs='git status'
+ga='git add'
+gc='git commit'
+gp='git push'
+gl='git log --oneline --graph --decorate --all'
 
 # Terraform shortcuts
-tf          # terraform
-tfa         # terraform apply
-tfp         # terraform plan
-tfi         # terraform init
-tfd         # terraform destroy
-tfv         # terraform validate
-tff         # terraform fmt
-
-# tmux shortcuts
-t           # tmux
-ta          # tmux attach
-tl          # tmux list-sessions
-tk          # tmux kill-session
+tf='terraform'
+tfa='terraform apply'
+tfp='terraform plan'
 ```
 
-### Tmux Key Bindings (`.tmux.conf`)
-```bash
-# Prefix: Ctrl+a (instead of Ctrl+b)
-Ctrl+a |    # Split vertically
-Ctrl+a -    # Split horizontally
-Ctrl+a h/j/k/l  # Navigate panes (vim-style)
-Ctrl+a H/J/K/L  # Resize panes (vim-style)
-Ctrl+a I    # Install plugins (after first setup)
-```
+### Tmux Key Bindings
+- Prefix: `Ctrl+a`
+- Split: `|` (vertical), `-` (horizontal)
+- Navigate: `h/j/k/l` (vim-style)
+- Resize: `H/J/K/L`
+- Install plugins: `Ctrl+a I`
 
-### Neovim Key Bindings (`init.vim`)
-```bash
-# Leader key: Space
-jj          # Exit insert mode
-Space+w     # Save file
-Space+q     # Quit file
-Space+n     # Toggle NERDTree
-Space+f     # Find file in NERDTree
-Space+p     # FZF file search
-Space+b     # FZF buffer search
-Space+g     # FZF ripgrep search
-Space+t     # Toggle Tagbar
-Space+gs    # Git status
-Space+ga    # Git add all
-Space+gc    # Git commit
-Space+gp    # Git push
-Space+gl    # Git log
-gd          # Go to definition (COC)
-gr          # Go to references (COC)
-K           # Show documentation (COC)
-Ctrl+h/j/k/l # Navigate windows
-```
+### Custom Functions
+- `mkcd <dir>` - Make directory and cd into it
+- `extract <file>` - Extract any archive format
+- `gcommit "msg"` - Git add all and commit with message
+- `gnew <branch>` - Create and switch to new git branch
 
-### Custom Shell Functions
-```bash
-mkcd <dir>      # Make directory and cd into it
-extract <file>  # Extract any archive format
-weather <city>  # Get weather for city
-ff <pattern>    # Find files matching pattern
-gcommit "msg"   # Git add all and commit with message
-gnew <branch>   # Create and switch to new git branch
-```
+## Common Development Patterns
 
-## Common Customization Patterns
+### Adding New Tools
+**macOS**: Add to `macos/setup.sh` brew install section + verification
+**Ubuntu**: Add to `windows/ubuntu-setup.sh` apt install section + verification
 
-### Adding New Tools to Setup Scripts
+### Modifying Setup Scripts
+- Always use `command_exists()` and `verify_file()` functions
+- Follow the install → verify → report pattern
+- Test with `bash -n script_name.sh` before running
+- Update final verification section when adding tools
 
-**macOS (`macos/setup.sh`):**
-```bash
-# Add to the appropriate brew install section
-brew install new-tool
-
-# Add verification
-command_exists new-tool && echo "✅ new-tool installed" || echo "❌ new-tool missing"
-```
-
-**Windows/Ubuntu (`windows/ubuntu-setup.sh`):**
-```bash
-# Add to apt install section
-sudo apt install -y new-tool
-
-# Add verification
-verify_command new-tool
-```
-
-### Modifying Dotfiles
-
-**Adding shell aliases (`.zshrc.custom`):**
-```bash
-# Development shortcuts
-alias myproject='cd ~/projects/myproject'
-alias serve8080='python3 -m http.server 8080'
-alias dockerclean='docker system prune -af'
-```
-
-**Adding tmux key bindings (`.tmux.conf`):**
-```bash
-# Custom pane switching
-bind-key M-h select-pane -L
-bind-key M-l select-pane -R
-```
-
-### Script Modification Best Practices
-
-- Always test changes with syntax checkers before running
-- Use the verification functions (`command_exists`, `verify_file`) for new installations
-- Maintain the error handling pattern (`set -e` and explicit error checking)
-- Update the final verification section when adding new tools
-- Follow the platform-specific patterns (Homebrew for macOS, apt for Ubuntu)
+### Cross-Platform Considerations
+- Use dynamic path resolution pattern for dotfiles location
+- Handle line endings (Ubuntu script converts Windows → Unix)
+- Ensure consistent shell configuration sourcing across platforms

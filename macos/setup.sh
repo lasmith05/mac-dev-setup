@@ -157,6 +157,11 @@ if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
 
+# Create tmux directories to prevent resurrection errors
+echo "📁 Creating tmux directories..."
+mkdir -p ~/.tmux/resurrect
+echo "✅ tmux directories created"
+
 # Install Rust and Cargo (for some modern tools)
 echo "🦀 Installing Rust and Cargo..."
 if ! command -v rustc &> /dev/null; then
