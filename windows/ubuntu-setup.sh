@@ -115,33 +115,25 @@ fi
 echo "🔤 Installing FiraCode Nerd Font..."
 mkdir -p ~/.local/share/fonts
 cd ~/.local/share/fonts
-curl -fLo "FiraCode Bold Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Bold/FiraCodeNerdFont-Bold.ttf
-curl -fLo "FiraCode Bold Italic Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/BoldItalic/FiraCodeNerdFont-BoldItalic.ttf
-curl -fLo "FiraCode Light Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Light/FiraCodeNerdFont-Light.ttf
-curl -fLo "FiraCode Light Italic Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/LightItalic/FiraCodeNerdFont-LightItalic.ttf
-curl -fLo "FiraCode Medium Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Medium/FiraCodeNerdFont-Medium.ttf
-curl -fLo "FiraCode Medium Italic Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/MediumItalic/FiraCodeNerdFont-MediumItalic.ttf
-curl -fLo "FiraCode Regular Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Regular/FiraCodeNerdFont-Regular.ttf
-curl -fLo "FiraCode Regular Italic Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/RegularItalic/FiraCodeNerdFont-RegularItalic.ttf
-curl -fLo "FiraCode Retina Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Retina/FiraCodeNerdFont-Retina.ttf
-curl -fLo "FiraCode Retina Italic Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/RetinaItalic/FiraCodeNerdFont-RetinaItalic.ttf
-curl -fLo "FiraCode SemiBold Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/SemiBold/FiraCodeNerdFont-SemiBold.ttf
-curl -fLo "FiraCode SemiBold Italic Nerd Font Complete.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/SemiBoldItalic/FiraCodeNerdFont-SemiBoldItalic.ttf
-fc-cache -fv
+
+# Download available FiraCode Nerd Font variants (no italic variants exist)
+# Continue script execution even if font downloads fail
+curl -fLo "FiraCodeNerdFont-Bold.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Bold/FiraCodeNerdFont-Bold.ttf || echo "⚠️ Bold font download failed"
+curl -fLo "FiraCodeNerdFont-Light.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Light/FiraCodeNerdFont-Light.ttf || echo "⚠️ Light font download failed"
+curl -fLo "FiraCodeNerdFont-Medium.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Medium/FiraCodeNerdFont-Medium.ttf || echo "⚠️ Medium font download failed"
+curl -fLo "FiraCodeNerdFont-Regular.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Regular/FiraCodeNerdFont-Regular.ttf || echo "⚠️ Regular font download failed"
+curl -fLo "FiraCodeNerdFont-Retina.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Retina/FiraCodeNerdFont-Retina.ttf || echo "⚠️ Retina font download failed"
+curl -fLo "FiraCodeNerdFont-SemiBold.ttf" \
+    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/SemiBold/FiraCodeNerdFont-SemiBold.ttf || echo "⚠️ SemiBold font download failed"
+
+fc-cache -fv || echo "⚠️ Font cache refresh failed"
 cd -
-echo "✅ FiraCode Nerd Font installed"
+echo "✅ FiraCode Nerd Font installation completed"
 
 # Set up dotfiles with proper line endings
 echo "📝 Setting up dotfiles..."

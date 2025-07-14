@@ -91,11 +91,19 @@ brew install package_name
 command_exists package_name && echo "✅ installed" || echo "❌ missing"
 ```
 
+**Apple Silicon Detection**: Scripts automatically detect Apple Silicon Macs and configure Homebrew paths:
+```bash
+if [[ $(uname -m) == "arm64" ]]; then
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+```
+
 ### Platform-Specific Setup Scripts
 
 **macOS (`macos/setup.sh`)**: Homebrew-based installation with Apple Silicon/Intel detection
 **Windows (`windows/setup.bat` + `windows-setup.ps1`)**: WSL2 installation + Windows apps via winget
-**Ubuntu (`windows/ubuntu-setup.sh`)**: apt-based installation with Windows→Unix line ending conversion
+**Ubuntu (`windows/ubuntu-setup.sh`)**: apt-based installation with Windows→Unix line ending conversion and pipx for Python packages
 
 ### Dotfiles Configuration
 
@@ -231,4 +239,11 @@ nvim -c ":CocList extensions" -c ":q"
 ls ~/Library/Fonts/FiraCode* 2>/dev/null || ls /Library/Fonts/FiraCode* 2>/dev/null
 # Ubuntu/WSL
 ls ~/.local/share/fonts/FiraCode* 2>/dev/null
+
+# Verify Homebrew installation and architecture
+brew --version && echo "Homebrew path: $(which brew)"
+uname -m  # Check architecture (arm64 for Apple Silicon, x86_64 for Intel)
+
+# Check script execution permissions
+ls -la macos/setup.sh windows/ubuntu-setup.sh
 ```
