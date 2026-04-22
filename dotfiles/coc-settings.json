@@ -15,14 +15,6 @@
   "python.formatting.provider": "black",
   "python.formatting.blackArgs": ["--line-length=88"],
   
-  "terraform.languageServer": {
-    "external": true,
-    "filetypes": ["terraform"],
-    "command": "terraform-ls",
-    "args": ["serve"],
-    "rootPatterns": [".terraform", "*.tf"]
-  },
-  
   "languageserver": {
     "terraform": {
       "command": "terraform-ls",

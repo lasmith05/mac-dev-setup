@@ -102,6 +102,10 @@ else
         python3
 fi
 
+# Install terraform-ls (Terraform Language Server for Neovim/COC)
+echo "🏗️ Installing terraform-ls..."
+brew install hashicorp/tap/terraform-ls || echo "⚠️ terraform-ls installation had issues, continuing..."
+
 # Install GUI applications via Homebrew Cask
 echo "🖥️ Installing GUI applications..."
 brew install --cask visual-studio-code || echo "⚠️ Visual Studio Code installation had issues, continuing..."
@@ -245,7 +249,7 @@ fi
 
 # Install fzf key bindings and fuzzy completion
 echo "🔍 Setting up fzf integration..."
-$(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc
+bash "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc
 
 # Install Python development packages
 echo "🐍 Installing Python development packages..."
@@ -312,6 +316,7 @@ if command_exists tfenv; then
 else
     command_exists terraform && echo "✅ terraform installed" || echo "❌ terraform missing"
 fi
+command_exists terraform-ls && echo "✅ terraform-ls installed" || echo "❌ terraform-ls missing"
 command_exists node && echo "✅ node.js installed" || echo "❌ node.js missing"
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"

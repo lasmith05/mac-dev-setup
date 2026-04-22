@@ -166,7 +166,7 @@ tfp='terraform plan'
 - `gnew <branch>` - Create and switch to new git branch
 - `weather <location>` - Get weather information via wttr.in
 - `ff <pattern>` - Find files matching pattern
-- `fd <pattern>` - Find directories matching pattern
+- `fdir <pattern>` - Find directories matching pattern (renamed from `fd` to avoid collision with fd tool)
 
 ### Neovim Key Bindings (init.vim)
 - Leader key: `Space`

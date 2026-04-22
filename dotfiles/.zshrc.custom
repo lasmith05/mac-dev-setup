@@ -66,7 +66,7 @@ alias -- -='cd -'
 
 # System info
 alias myip='curl -s https://ipinfo.io/ip'
-alias ports='netstat -tulanp'
+alias ports='lsof -i -P -n | grep LISTEN'
 alias top='htop'
 
 # fzf configuration
@@ -78,8 +78,8 @@ export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Set default editor
-export EDITOR='vim'
-export VISUAL='vim'
+export EDITOR='nvim'
+export VISUAL='nvim'
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
@@ -123,12 +123,12 @@ function weather() {
 
 # Quick file search
 function ff() {
-    find . -type f -name "*$1*"
+    /usr/bin/find . -type f -name "*$1*"
 }
 
-# Quick directory search
-function fd() {
-    find . -type d -name "*$1*"
+# Quick directory search (named fdir to avoid collision with fd tool)
+function fdir() {
+    /usr/bin/find . -type d -name "*$1*"
 }
 
 # Git commit with message
@@ -144,5 +144,5 @@ function gnew() {
 # Welcome message
 echo "🚀 Welcome to your Mac-like development environment!"
 echo "📁 Current directory: $(pwd)"
-echo "🔧 Available tools: tmux, git, terraform, eza, bat, rg, fd, fzf"
+echo "🔧 Available tools: tmux, git, terraform, eza, bat, rg, fd, fzf, fdir"
 echo "💡 Type 'alias' to see all available shortcuts"

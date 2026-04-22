@@ -66,17 +66,35 @@ sudo apt install -y \
     ripgrep \
     fd-find \
     fzf \
-    bat
+    bat \
+    tree \
+    htop \
+    jq \
+    tldr
 
 # Create bat symlink (Ubuntu installs it as batcat)
 sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
 
-# Install Terraform
-echo "🏗️ Installing Terraform..."
+# Set up fzf key bindings and completion
+echo "🔍 Setting up fzf integration..."
+if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+    cat >> ~/.zshrc << 'EOF'
+
+# fzf key bindings and completion
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+source /usr/share/doc/fzf/examples/completion.zsh
+EOF
+    echo "✅ fzf key bindings configured"
+else
+    echo "⚠️ fzf key bindings file not found, skipping"
+fi
+
+# Install Terraform and terraform-ls (Language Server for Neovim/COC)
+echo "🏗️ Installing Terraform and terraform-ls..."
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update
-sudo apt install terraform
+sudo apt install -y terraform terraform-ls
 
 # Install Node.js and npm (useful for development)
 echo "🟢 Installing Node.js and npm..."
@@ -198,7 +216,18 @@ fi
 
 # Install Python development packages
 echo "🐍 Installing Python development packages..."
-pip3 install --user black flake8 pylint isort python-lsp-server[all] || echo "⚠️ Some Python packages failed to install"
+if ! command_exists pipx; then
+    sudo apt install -y pipx
+    pipx ensurepath
+fi
+pipx install black || echo "⚠️ black installation failed"
+pipx install flake8 || echo "⚠️ flake8 installation failed"
+pipx install pylint || echo "⚠️ pylint installation failed"
+pipx install isort || echo "⚠️ isort installation failed"
+pipx install 'python-lsp-server[all]' || echo "⚠️ python-lsp-server installation failed"
+# pynvim must be in the same environment Neovim's Python provider uses
+pip3 install --user pynvim || echo "⚠️ pynvim installation failed"
+echo "✅ Python packages installed"
 
 echo ""
 echo "🎉 Ubuntu development environment setup complete!"

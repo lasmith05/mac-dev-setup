@@ -49,8 +49,10 @@ dev-setup/
 │   └── ubuntu-setup.sh      # Ubuntu WSL2 setup script
 └── dotfiles/
     ├── .tmux.conf           # Tmux configuration
-    ├── .vimrc              # Vim configuration
-    └── .zshrc.custom       # Zsh configuration
+    ├── .vimrc               # Vim configuration
+    ├── .zshrc.custom        # Zsh configuration
+    ├── init.vim             # Neovim configuration with vim-plug and plugins
+    └── coc-settings.json    # COC.nvim LSP configuration
 ```
 
 ## 🛠️ What Gets Installed
@@ -59,7 +61,7 @@ dev-setup/
 - **Languages**: Node.js, Rust (with Cargo), Python 3
 - **Infrastructure**: Terraform, AWS CLI, Docker
 - **Version Control**: Git with Git LFS
-- **Editors**: Visual Studio Code with extensions, Vim
+- **Editors**: Visual Studio Code with extensions, Vim, Neovim (with COC.nvim LSP)
 
 ### Modern CLI Tools
 - **File Operations**: eza (ls replacement), bat (cat replacement), fd (find replacement)
@@ -77,7 +79,7 @@ dev-setup/
 ### macOS
 - **Package Manager**: Homebrew
 - **Applications**: Visual Studio Code, Xcode Command Line Tools
-- **Docker**: CLI included (Docker Desktop available for manual install)
+- **Docker**: CLI installed via Homebrew (Docker Desktop available for manual install from docker.com)
 - **Shell**: Native zsh with Oh My Zsh
 - **Terminal**: Enhanced with tmux and modern CLI tools
 
