@@ -112,7 +112,6 @@ brew install --cask visual-studio-code || echo "⚠️ Visual Studio Code instal
 
 # Install FiraCode Nerd Font
 echo "🔤 Installing FiraCode Nerd Font..."
-brew tap homebrew/cask-fonts
 brew install --cask font-fira-code-nerd-font || echo "⚠️ FiraCode Nerd Font installation had issues, continuing..."
 
 echo "💡 Note: Docker CLI is installed via brew. For Docker Desktop GUI, install manually from:"
