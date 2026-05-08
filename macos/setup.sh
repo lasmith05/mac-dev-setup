@@ -28,6 +28,29 @@ verify_file() {
     fi
 }
 
+# Install a brew formula only if not already installed
+# Handles tap-prefixed names (e.g. hashicorp/tap/terraform-ls)
+brew_install() {
+    local package="$1"
+    local formula_name="${package##*/}"   # strip tap prefix
+    if brew list --formula "$formula_name" &>/dev/null; then
+        echo "✅ $formula_name already installed, skipping"
+    else
+        brew install "$package"
+    fi
+}
+
+# Install a brew cask only if not already installed
+brew_install_cask() {
+    local package="$1"
+    local cask_name="${package##*/}"
+    if brew list --cask "$cask_name" &>/dev/null; then
+        echo "✅ $cask_name already installed, skipping"
+    else
+        brew install --cask "$package" || echo "⚠️ $cask_name installation had issues, continuing..."
+    fi
+}
+
 # Check if running on macOS
 if [[ "$OSTYPE" != "darwin"* ]]; then
     echo "⚠️  This script is designed for macOS. Continue anyway? (y/n)"
@@ -57,26 +80,15 @@ brew update
 
 # Install essential development tools
 echo "🔧 Installing essential development tools..."
-brew install \
-    tmux \
-    zsh \
-    git \
-    curl \
-    wget \
-    unzip
+for pkg in tmux zsh git curl wget unzip; do
+    brew_install "$pkg"
+done
 
 # Install quality of life CLI tools
 echo "✨ Installing quality of life CLI tools..."
-brew install \
-    eza \
-    ripgrep \
-    fd \
-    fzf \
-    bat \
-    tree \
-    htop \
-    jq \
-    tldr
+for pkg in eza ripgrep fd fzf bat tree htop jq tldr; do
+    brew_install "$pkg"
+done
 
 # Install development languages and tools
 echo "🛠️ Installing development languages and tools..."
@@ -84,35 +96,37 @@ echo "🛠️ Installing development languages and tools..."
 # Check for tfenv conflict before installing terraform
 if command_exists tfenv; then
     echo "⚠️  tfenv detected. Skipping terraform installation (use 'tfenv install latest' instead)"
-    brew install \
-        node \
-        awscli \
-        --formula docker \
-        git-lfs \
-        neovim \
-        python3
+    brew_install node
+    brew_install awscli
+    brew list --formula docker &>/dev/null || brew install --formula docker
+    brew_install git-lfs
+    brew_install neovim
+    brew_install python3
 else
-    brew install \
-        node \
-        terraform \
-        awscli \
-        --formula docker \
-        git-lfs \
-        neovim \
-        python3
+    brew_install node
+    brew_install terraform
+    brew_install awscli
+    brew list --formula docker &>/dev/null || brew install --formula docker
+    brew_install git-lfs
+    brew_install neovim
+    brew_install python3
 fi
 
 # Install terraform-ls (Terraform Language Server for Neovim/COC)
 echo "🏗️ Installing terraform-ls..."
-brew install hashicorp/tap/terraform-ls || echo "⚠️ terraform-ls installation had issues, continuing..."
+if brew list --formula terraform-ls &>/dev/null; then
+    echo "✅ terraform-ls already installed, skipping"
+else
+    brew install hashicorp/tap/terraform-ls || echo "⚠️ terraform-ls installation had issues, continuing..."
+fi
 
 # Install GUI applications via Homebrew Cask
 echo "🖥️ Installing GUI applications..."
-brew install --cask visual-studio-code || echo "⚠️ Visual Studio Code installation had issues, continuing..."
+brew_install_cask visual-studio-code
 
 # Install FiraCode Nerd Font
 echo "🔤 Installing FiraCode Nerd Font..."
-brew install --cask font-fira-code-nerd-font || echo "⚠️ FiraCode Nerd Font installation had issues, continuing..."
+brew_install_cask font-fira-code-nerd-font
 
 echo "💡 Note: Docker CLI is installed via brew. For Docker Desktop GUI, install manually from:"
 echo "   https://www.docker.com/products/docker-desktop"
@@ -263,7 +277,7 @@ if pip3 install --user --dry-run black 2>&1 | grep -q "externally-managed-enviro
     pipx install pylint
     pipx install isort
     # Install pynvim for Neovim Python support
-    pip3 install --user --break-system-packages pynvim || echo "⚠️ pynvim installation failed"
+    pip3 install --user --break-system-packages --no-warn-script-location pynvim || echo "⚠️ pynvim installation failed"
     echo "✅ Python packages installed via pipx"
 else
     pip3 install --user black flake8 pylint isort python-lsp-server[all] pynvim || echo "⚠️ Some Python packages failed to install"
@@ -273,21 +287,20 @@ fi
 echo "🧩 Installing VS Code extensions..."
 if command_exists code; then
     echo "Installing recommended VS Code extensions..."
-    code --install-extension ms-vscode-remote.remote-ssh
-    code --install-extension ms-vscode.vscode-json
-    code --install-extension eamodio.gitlens
-    code --install-extension hashicorp.terraform
-    code --install-extension ms-python.python
-    code --install-extension ms-vscode.js-debug
-    code --install-extension bradlc.vscode-tailwindcss
-    code --install-extension ms-vscode.vscode-typescript-next
-    code --install-extension ms-azuretools.vscode-docker
-    code --install-extension github.copilot
-    code --install-extension ms-vscode.powershell
-    code --install-extension rust-lang.rust-analyzer
-    code --install-extension ms-toolsai.jupyter
-    code --install-extension ms-vscode-remote.remote-containers
-    code --install-extension shd101wyy.markdown-preview-enhanced
+    code --install-extension ms-vscode-remote.remote-ssh || true
+    code --install-extension eamodio.gitlens || true
+    code --install-extension hashicorp.terraform || true
+    code --install-extension ms-python.python || true
+    code --install-extension ms-vscode.js-debug || true
+    code --install-extension bradlc.vscode-tailwindcss || true
+    code --install-extension ms-vscode.vscode-typescript-next || true
+    code --install-extension ms-azuretools.vscode-docker || true
+    code --install-extension github.copilot || true
+    code --install-extension ms-vscode.powershell || true
+    code --install-extension rust-lang.rust-analyzer || true
+    code --install-extension ms-toolsai.jupyter || true
+    code --install-extension ms-vscode-remote.remote-containers || true
+    code --install-extension shd101wyy.markdown-preview-enhanced || true
     echo "✅ VS Code extensions installed"
 else
     echo "⚠️  VS Code not found in PATH. Extensions will be skipped."
