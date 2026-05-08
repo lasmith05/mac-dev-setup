@@ -86,7 +86,7 @@ done
 
 # Install quality of life CLI tools
 echo "✨ Installing quality of life CLI tools..."
-for pkg in eza ripgrep fd fzf bat tree htop jq tldr; do
+for pkg in eza ripgrep fd fzf bat tree htop btop glances jq tldr; do
     brew_install "$pkg"
 done
 
