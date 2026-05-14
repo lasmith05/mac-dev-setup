@@ -85,7 +85,9 @@ command_exists package_name && echo "✅ installed" || echo "❌ missing"
 - Installs Xcode CLT with an interactive user prompt — script waits for manual confirmation
 - Detects tfenv and skips standalone terraform to avoid conflicts
 - Detects "externally-managed-environment" and automatically uses pipx instead of pip
-- Auto-runs TPM plugin installation in a detached tmux session after setup
+- Installs Rust via rustup (`~/.cargo/env`) — required for tmux-thumbs plugin compilation during TPM install
+- Installs Python formatters via pip or pipx: `black`, `flake8`, `pylint`, `isort` — used by Neovim ALE for auto-format on save
+- Runs TPM's `bin/install_plugins` directly (no live tmux session needed); sources `~/.cargo/env` first so tmux-thumbs can compile
 
 ### Ubuntu (`windows/ubuntu-setup.sh`)
 - **WSL-only**: Checks `/proc/version` to verify WSL environment; fails on native Ubuntu
