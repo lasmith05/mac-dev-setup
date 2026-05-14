@@ -71,8 +71,7 @@ sudo apt install -y \
     htop \
     btop \
     glances \
-    jq \
-    tldr
+    jq
 
 # Create bat symlink (Ubuntu installs it as batcat)
 sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
@@ -102,6 +101,9 @@ sudo apt install -y terraform terraform-ls
 echo "🟢 Installing Node.js and npm..."
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt install -y nodejs
+
+# Install tldr via npm (not reliably available in apt across Ubuntu versions)
+npm install -g tldr || echo "⚠️ tldr installation failed"
 
 # Install Oh My Zsh
 echo "🐚 Installing Oh My Zsh..."
