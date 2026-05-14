@@ -91,11 +91,23 @@ else
 fi
 
 # Install Terraform and terraform-ls (Language Server for Neovim/COC)
-echo "🏗️ Installing Terraform and terraform-ls..."
+echo "🏗️ Installing Terraform..."
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update
-sudo apt install -y terraform terraform-ls
+sudo apt install -y terraform
+
+# Install terraform-ls via binary release — not reliably in apt across Ubuntu versions
+echo "🏗️ Installing terraform-ls..."
+TERRAFORM_LS_VERSION=$(curl -s https://api.releases.hashicorp.com/v1/releases/terraform-ls/latest | grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4)
+if [ -n "$TERRAFORM_LS_VERSION" ]; then
+    curl -fLo /tmp/terraform-ls.zip "https://releases.hashicorp.com/terraform-ls/${TERRAFORM_LS_VERSION}/terraform-ls_${TERRAFORM_LS_VERSION}_linux_amd64.zip"
+    sudo unzip -o /tmp/terraform-ls.zip terraform-ls -d /usr/local/bin/
+    rm /tmp/terraform-ls.zip
+    echo "✅ terraform-ls ${TERRAFORM_LS_VERSION} installed"
+else
+    echo "⚠️ Could not determine terraform-ls version, skipping"
+fi
 
 # Install Node.js and npm (useful for development)
 echo "🟢 Installing Node.js and npm..."
