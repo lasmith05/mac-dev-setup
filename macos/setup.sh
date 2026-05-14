@@ -252,12 +252,12 @@ fi
 
 # Install tmux plugins
 echo "🔌 Installing tmux plugins..."
-if [ -f "$HOME/.tmux.conf" ]; then
-    # Start tmux in detached mode and install plugins
-    tmux new-session -d -s setup 2>/dev/null || true
-    tmux send-keys -t setup "~/.tmux/plugins/tpm/bin/install_plugins" Enter 2>/dev/null || true
-    sleep 5
-    tmux kill-session -t setup 2>/dev/null || true
+if [ -f "$HOME/.tmux.conf" ] && [ -f "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
+    # Run install_plugins directly — no live tmux session needed, avoids flaky send-keys + sleep approach
+    # Ensure cargo is in PATH for tmux-thumbs (Rust binary that compiles during install)
+    source "$HOME/.cargo/env" 2>/dev/null || true
+    TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins" \
+        "$HOME/.tmux/plugins/tpm/bin/install_plugins" || echo "⚠️ Some tmux plugins failed to install, run Ctrl+a I inside tmux to retry"
 fi
 
 # Install fzf key bindings and fuzzy completion
