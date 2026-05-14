@@ -72,7 +72,7 @@ command_exists package_name && echo "✅ installed" || echo "❌ missing"
 ```
 
 ### Adding New Tools
-- **macOS**: Add `brew install` + verification to `macos/setup.sh`
+- **macOS**: Use `brew_install package_name` or `brew_install_cask app_name` in `macos/setup.sh` — these are idempotent wrappers that skip already-installed packages (uses `brew list --formula`/`--cask`, available on Homebrew 2.0+). Tap-prefixed names like `hashicorp/tap/terraform-ls` are handled automatically.
 - **Ubuntu**: Add `apt install` + verification to `windows/ubuntu-setup.sh`
 - Always update the final verification section at the bottom of the script
 
@@ -100,6 +100,8 @@ command_exists package_name && echo "✅ installed" || echo "❌ missing"
 ## Dotfiles Design Notes
 
 All dotfiles are **identical across platforms** — platform differences are handled entirely in setup scripts.
+
+The repo root contains copies of `.tmux.conf`, `.vimrc`, and `.zshrc.custom` alongside the canonical `dotfiles/` directory. Keep these in sync — the setup scripts source from `dotfiles/`, not from the repo root.
 
 - `.vimrc` and `init.vim` auto-download vim-plug and auto-install all plugins on first launch
 - `init.vim` uses Space as leader; Python and Terraform files auto-format on save (via ALE + black/terraform fmt)
