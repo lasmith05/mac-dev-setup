@@ -92,10 +92,18 @@ fi
 
 # Install Terraform and terraform-ls (Language Server for Neovim/COC)
 echo "🏗️ Installing Terraform..."
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update
-sudo apt install -y terraform
+if command_exists terraform; then
+    echo "✅ Terraform already installed, skipping"
+else
+    # Download GPG key to temp file first — piping wget directly into gpg is fragile
+    wget -O /tmp/hashicorp.gpg https://apt.releases.hashicorp.com/gpg
+    # --yes overwrites existing keyring file without prompting
+    sudo gpg --yes --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg /tmp/hashicorp.gpg
+    rm /tmp/hashicorp.gpg
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+    sudo apt update
+    sudo apt install -y terraform
+fi
 
 # Install terraform-ls via binary release — not reliably in apt across Ubuntu versions
 echo "🏗️ Installing terraform-ls..."
