@@ -104,7 +104,7 @@ if command_exists tfenv; then
     brew_install python3
 else
     brew_install node
-    brew_install terraform
+    brew_install hashicorp/tap/terraform
     brew_install awscli
     brew list --formula docker &>/dev/null || brew install --formula docker
     brew_install git-lfs

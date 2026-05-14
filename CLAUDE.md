@@ -73,6 +73,8 @@ command_exists package_name && echo "✅ installed" || echo "❌ missing"
 
 ### Adding New Tools
 - **macOS**: Use `brew_install package_name` or `brew_install_cask app_name` in `macos/setup.sh` — these are idempotent wrappers that skip already-installed packages (uses `brew list --formula`/`--cask`, available on Homebrew 2.0+). Tap-prefixed names like `hashicorp/tap/terraform-ls` are handled automatically.
+  - `brew_install` follows `set -e` and will abort the script on failure
+  - `brew_install_cask` uses `|| echo "⚠️ ..."` and continues on failure — GUI apps are treated as non-fatal
 - **Ubuntu**: Add `apt install` + verification to `windows/ubuntu-setup.sh`
 - Always update the final verification section at the bottom of the script
 
@@ -111,6 +113,8 @@ The repo root contains copies of `.tmux.conf`, `.vimrc`, and `.zshrc.custom` alo
 ## Troubleshooting
 
 **tfenv Conflicts**: macOS script auto-detects and skips terraform. Use `tfenv install latest` manually.
+
+**Terraform Homebrew Formula**: `terraform` was removed from Homebrew core after HashiCorp's license change. The script installs via `hashicorp/tap/terraform` instead.
 
 **Externally Managed Python**: Handled automatically via pipx. Normal on modern macOS.
 
