@@ -69,6 +69,8 @@ sudo apt install -y \
     bat \
     tree \
     htop \
+    btop \
+    glances \
     jq \
     tldr
 
@@ -206,12 +208,12 @@ sudo chsh -s $(which zsh) $USER
 
 # Install tmux plugins
 echo "🔌 Installing tmux plugins..."
-if [ -f "$HOME/.tmux.conf" ]; then
-    # Start tmux in detached mode and install plugins
-    tmux new-session -d -s setup 2>/dev/null || true
-    tmux send-keys -t setup "~/.tmux/plugins/tpm/bin/install_plugins" Enter 2>/dev/null || true
-    sleep 5
-    tmux kill-session -t setup 2>/dev/null || true
+if [ -f "$HOME/.tmux.conf" ] && [ -f "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
+    # Run install_plugins directly — no live tmux session needed, avoids flaky send-keys + sleep approach
+    # Ensure cargo is in PATH for tmux-thumbs (Rust binary that compiles during install)
+    source "$HOME/.cargo/env" 2>/dev/null || true
+    TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins" \
+        "$HOME/.tmux/plugins/tpm/bin/install_plugins" || echo "⚠️ Some tmux plugins failed to install, run Ctrl+a I inside tmux to retry"
 fi
 
 # Install Python development packages
@@ -244,6 +246,8 @@ command_exists bat && echo "✅ bat installed" || echo "❌ bat missing"
 command_exists rg && echo "✅ ripgrep installed" || echo "❌ ripgrep missing"
 command_exists fd && echo "✅ fd installed" || echo "❌ fd missing"
 command_exists fzf && echo "✅ fzf installed" || echo "❌ fzf missing"
+command_exists btop && echo "✅ btop installed" || echo "❌ btop missing"
+command_exists glances && echo "✅ glances installed" || echo "❌ glances missing"
 command_exists aws && echo "✅ aws cli installed" || echo "❌ aws cli missing"
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
