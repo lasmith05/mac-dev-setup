@@ -99,23 +99,35 @@ sudo apt install -y terraform
 
 # Install terraform-ls via binary release — not reliably in apt across Ubuntu versions
 echo "🏗️ Installing terraform-ls..."
-TERRAFORM_LS_VERSION=$(curl -s https://api.releases.hashicorp.com/v1/releases/terraform-ls/latest | grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4)
-if [ -n "$TERRAFORM_LS_VERSION" ]; then
-    curl -fLo /tmp/terraform-ls.zip "https://releases.hashicorp.com/terraform-ls/${TERRAFORM_LS_VERSION}/terraform-ls_${TERRAFORM_LS_VERSION}_linux_amd64.zip"
-    sudo unzip -o /tmp/terraform-ls.zip terraform-ls -d /usr/local/bin/
-    rm /tmp/terraform-ls.zip
-    echo "✅ terraform-ls ${TERRAFORM_LS_VERSION} installed"
+if command_exists terraform-ls; then
+    echo "✅ terraform-ls already installed, skipping"
 else
-    echo "⚠️ Could not determine terraform-ls version, skipping"
+    TERRAFORM_LS_VERSION=$(curl -s https://api.releases.hashicorp.com/v1/releases/terraform-ls/latest | grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4)
+    if [ -n "$TERRAFORM_LS_VERSION" ]; then
+        curl -fLo /tmp/terraform-ls.zip "https://releases.hashicorp.com/terraform-ls/${TERRAFORM_LS_VERSION}/terraform-ls_${TERRAFORM_LS_VERSION}_linux_amd64.zip"
+        sudo unzip -o /tmp/terraform-ls.zip terraform-ls -d /usr/local/bin/
+        rm /tmp/terraform-ls.zip
+        echo "✅ terraform-ls ${TERRAFORM_LS_VERSION} installed"
+    else
+        echo "⚠️ Could not determine terraform-ls version, skipping"
+    fi
 fi
 
 # Install Node.js and npm (useful for development)
 echo "🟢 Installing Node.js and npm..."
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt install -y nodejs
+if command_exists node; then
+    echo "✅ Node.js already installed, skipping"
+else
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt install -y nodejs
+fi
 
 # Install tldr via npm (not reliably available in apt across Ubuntu versions)
-npm install -g tldr || echo "⚠️ tldr installation failed"
+if command_exists tldr; then
+    echo "✅ tldr already installed, skipping"
+else
+    npm install -g tldr || echo "⚠️ tldr installation failed"
+fi
 
 # Install Oh My Zsh
 echo "🐚 Installing Oh My Zsh..."
@@ -150,27 +162,31 @@ fi
 
 # Install FiraCode Nerd Font
 echo "🔤 Installing FiraCode Nerd Font..."
-mkdir -p ~/.local/share/fonts
-cd ~/.local/share/fonts
+if ls ~/.local/share/fonts/FiraCodeNerdFont-Regular.ttf >/dev/null 2>&1; then
+    echo "✅ FiraCode Nerd Font already installed, skipping"
+else
+    mkdir -p ~/.local/share/fonts
+    cd ~/.local/share/fonts
 
-# Download available FiraCode Nerd Font variants (no italic variants exist)
-# Continue script execution even if font downloads fail
-curl -fLo "FiraCodeNerdFont-Bold.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Bold/FiraCodeNerdFont-Bold.ttf || echo "⚠️ Bold font download failed"
-curl -fLo "FiraCodeNerdFont-Light.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Light/FiraCodeNerdFont-Light.ttf || echo "⚠️ Light font download failed"
-curl -fLo "FiraCodeNerdFont-Medium.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Medium/FiraCodeNerdFont-Medium.ttf || echo "⚠️ Medium font download failed"
-curl -fLo "FiraCodeNerdFont-Regular.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Regular/FiraCodeNerdFont-Regular.ttf || echo "⚠️ Regular font download failed"
-curl -fLo "FiraCodeNerdFont-Retina.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Retina/FiraCodeNerdFont-Retina.ttf || echo "⚠️ Retina font download failed"
-curl -fLo "FiraCodeNerdFont-SemiBold.ttf" \
-    https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/SemiBold/FiraCodeNerdFont-SemiBold.ttf || echo "⚠️ SemiBold font download failed"
+    # Download available FiraCode Nerd Font variants (no italic variants exist)
+    # Continue script execution even if font downloads fail
+    curl -fLo "FiraCodeNerdFont-Bold.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Bold/FiraCodeNerdFont-Bold.ttf || echo "⚠️ Bold font download failed"
+    curl -fLo "FiraCodeNerdFont-Light.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Light/FiraCodeNerdFont-Light.ttf || echo "⚠️ Light font download failed"
+    curl -fLo "FiraCodeNerdFont-Medium.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Medium/FiraCodeNerdFont-Medium.ttf || echo "⚠️ Medium font download failed"
+    curl -fLo "FiraCodeNerdFont-Regular.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Regular/FiraCodeNerdFont-Regular.ttf || echo "⚠️ Regular font download failed"
+    curl -fLo "FiraCodeNerdFont-Retina.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/Retina/FiraCodeNerdFont-Retina.ttf || echo "⚠️ Retina font download failed"
+    curl -fLo "FiraCodeNerdFont-SemiBold.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/FiraCode/SemiBold/FiraCodeNerdFont-SemiBold.ttf || echo "⚠️ SemiBold font download failed"
 
-fc-cache -fv || echo "⚠️ Font cache refresh failed"
-cd -
-echo "✅ FiraCode Nerd Font installation completed"
+    fc-cache -fv || echo "⚠️ Font cache refresh failed"
+    cd -
+    echo "✅ FiraCode Nerd Font installation completed"
+fi
 
 # Set up dotfiles with proper line endings
 echo "📝 Setting up dotfiles..."
@@ -236,11 +252,11 @@ if ! command_exists pipx; then
     sudo apt install -y pipx
     pipx ensurepath
 fi
-pipx install black || echo "⚠️ black installation failed"
-pipx install flake8 || echo "⚠️ flake8 installation failed"
-pipx install pylint || echo "⚠️ pylint installation failed"
-pipx install isort || echo "⚠️ isort installation failed"
-pipx install 'python-lsp-server[all]' || echo "⚠️ python-lsp-server installation failed"
+pipx install black || pipx upgrade black || echo "⚠️ black installation failed"
+pipx install flake8 || pipx upgrade flake8 || echo "⚠️ flake8 installation failed"
+pipx install pylint || pipx upgrade pylint || echo "⚠️ pylint installation failed"
+pipx install isort || pipx upgrade isort || echo "⚠️ isort installation failed"
+pipx install 'python-lsp-server[all]' || pipx upgrade python-lsp-server || echo "⚠️ python-lsp-server installation failed"
 # pynvim must be in the same environment Neovim's Python provider uses
 pip3 install --user pynvim || echo "⚠️ pynvim installation failed"
 echo "✅ Python packages installed"
