@@ -90,6 +90,13 @@ for pkg in eza ripgrep fd fzf bat tree htop btop glances jq tldr; do
     brew_install "$pkg"
 done
 
+# Install neofetch (removed from Homebrew 2024), fall back to fastfetch
+if brew list --formula neofetch &>/dev/null || brew list --formula fastfetch &>/dev/null; then
+    echo "✅ neofetch/fastfetch already installed, skipping"
+else
+    brew install neofetch 2>/dev/null || brew_install fastfetch
+fi
+
 # Install development languages and tools
 echo "🛠️ Installing development languages and tools..."
 
@@ -333,6 +340,7 @@ command_exists node && echo "✅ node.js installed" || echo "❌ node.js missing
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
 command_exists code && echo "✅ visual studio code installed" || echo "❌ visual studio code missing"
+command_exists neofetch && echo "✅ neofetch installed" || command_exists fastfetch && echo "✅ fastfetch installed" || echo "❌ neofetch/fastfetch missing"
 
 # Check if FiraCode Nerd Font is installed
 if ls ~/Library/Fonts/FiraCode* >/dev/null 2>&1 || ls /Library/Fonts/FiraCode* >/dev/null 2>&1 || ls /System/Library/Fonts/FiraCode* >/dev/null 2>&1; then

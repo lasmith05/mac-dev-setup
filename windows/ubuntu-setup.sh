@@ -73,6 +73,26 @@ sudo apt install -y \
     glances \
     jq
 
+# Install neofetch, fall back to fastfetch binary if not available in apt
+if command_exists neofetch; then
+    echo "✅ neofetch already installed, skipping"
+elif command_exists fastfetch; then
+    echo "✅ fastfetch already installed, skipping"
+elif sudo apt install -y neofetch 2>/dev/null; then
+    echo "✅ neofetch installed"
+else
+    echo "⚠️ neofetch not available in apt, installing fastfetch..."
+    FASTFETCH_VERSION=$(curl -s https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+    if [ -n "$FASTFETCH_VERSION" ]; then
+        curl -fLo /tmp/fastfetch.deb "https://github.com/fastfetch-cli/fastfetch/releases/download/${FASTFETCH_VERSION}/fastfetch-linux-amd64.deb"
+        sudo dpkg -i /tmp/fastfetch.deb
+        rm /tmp/fastfetch.deb
+        echo "✅ fastfetch ${FASTFETCH_VERSION} installed"
+    else
+        echo "⚠️ Could not determine fastfetch version, skipping"
+    fi
+fi
+
 # Create bat symlink (Ubuntu installs it as batcat)
 sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
 
@@ -286,6 +306,7 @@ command_exists fd && echo "✅ fd installed" || echo "❌ fd missing"
 command_exists fzf && echo "✅ fzf installed" || echo "❌ fzf missing"
 command_exists btop && echo "✅ btop installed" || echo "❌ btop missing"
 command_exists glances && echo "✅ glances installed" || echo "❌ glances missing"
+command_exists neofetch && echo "✅ neofetch installed" || command_exists fastfetch && echo "✅ fastfetch installed" || echo "❌ neofetch/fastfetch missing"
 command_exists aws && echo "✅ aws cli installed" || echo "❌ aws cli missing"
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
