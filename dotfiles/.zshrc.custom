@@ -1,6 +1,12 @@
 # Custom Zsh Configuration (.zshrc.custom)
 # This file will be sourced from .zshrc
 
+# Auto-start tmux on terminal launch
+if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+    # Attach to existing session or create a new one
+    tmux attach-session -t default || tmux new-session -s default
+fi
+
 # Set Oh My Zsh theme
 ZSH_THEME="robbyrussell"
 
