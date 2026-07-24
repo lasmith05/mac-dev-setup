@@ -1,0 +1,6 @@
+# Local tool / session directories
+.claude/
+.tokensave/
+
+# macOS
+.DS_Store
