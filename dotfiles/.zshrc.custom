@@ -1,11 +1,19 @@
 # Custom Zsh Configuration (.zshrc.custom)
 # This file will be sourced from .zshrc
 
-# Auto-start tmux on terminal launch
-if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+# Auto-start tmux on terminal launch — skip IDE integrated terminals
+# (VS Code + forks like Cursor/Windsurf, JetBrains, Zed)
+tmux_skip=""
+case "$TERM_PROGRAM" in
+    vscode|zed) tmux_skip=1 ;;
+esac
+[ "$TERMINAL_EMULATOR" = "JetBrains-JediTerm" ] && tmux_skip=1
+
+if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$tmux_skip" ]; then
     # Attach to existing session or create a new one
     tmux attach-session -t default || tmux new-session -s default
 fi
+unset tmux_skip
 
 # Set Oh My Zsh theme
 ZSH_THEME="robbyrussell"
