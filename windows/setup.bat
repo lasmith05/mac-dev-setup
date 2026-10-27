@@ -48,10 +48,14 @@ if %errorLevel% == 0 (
 
 REM Set PowerShell execution policy comprehensively
 echo [INFO] Setting PowerShell execution policy...
+REM Check each call separately — errorLevel only reflects the most recent command
+set POLICY_OK=1
 powershell -Command "Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force" 2>nul
+if %errorLevel% neq 0 set POLICY_OK=0
 powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force" 2>nul
+if %errorLevel% neq 0 set POLICY_OK=0
 
-if %errorLevel% == 0 (
+if %POLICY_OK% == 1 (
     echo [INFO] PowerShell execution policy configured successfully
 ) else (
     echo [WARNING] Could not set execution policy automatically

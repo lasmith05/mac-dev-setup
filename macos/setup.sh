@@ -60,6 +60,22 @@ if [[ "$OSTYPE" != "darwin"* ]]; then
     fi
 fi
 
+# Install Xcode Command Line Tools — before Homebrew, which needs them
+echo "🛠️ Installing Xcode Command Line Tools..."
+if ! xcode-select -p &> /dev/null; then
+    xcode-select --install
+    echo "⚠️  Xcode Command Line Tools installation started. Please complete the installation in the popup dialog."
+    echo "Press any key to continue after installation completes..."
+    read -n 1
+else
+    echo "✅ Xcode Command Line Tools already installed"
+fi
+
+# Install full Xcode (optional - requires App Store)
+echo "📱 Xcode Installation Note:"
+echo "To install full Xcode, please download it from the App Store manually."
+echo "This script installs Xcode Command Line Tools only."
+
 # Install Homebrew if not already installed
 if ! command_exists brew; then
     echo "🍺 Installing Homebrew..."
@@ -138,22 +154,6 @@ brew_install_cask font-fira-code-nerd-font
 echo "💡 Note: Docker CLI is installed via brew. For Docker Desktop GUI, install manually from:"
 echo "   https://www.docker.com/products/docker-desktop"
 
-# Install Xcode Command Line Tools
-echo "🛠️ Installing Xcode Command Line Tools..."
-if ! xcode-select -p &> /dev/null; then
-    xcode-select --install
-    echo "⚠️  Xcode Command Line Tools installation started. Please complete the installation in the popup dialog."
-    echo "Press any key to continue after installation completes..."
-    read -n 1
-else
-    echo "✅ Xcode Command Line Tools already installed"
-fi
-
-# Install full Xcode (optional - requires App Store)
-echo "📱 Xcode Installation Note:"
-echo "To install full Xcode, please download it from the App Store manually."
-echo "This script installs Xcode Command Line Tools only."
-
 # Install Oh My Zsh
 echo "🐚 Installing Oh My Zsh..."
 echo "🔍 Checking if Oh My Zsh already exists..."
@@ -179,6 +179,18 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
 else
     echo "✅ Oh My Zsh already installed"
 fi
+
+# Install third-party Oh My Zsh plugins referenced in .zshrc.omz
+echo "🔌 Installing Oh My Zsh plugins..."
+ZSH_CUSTOM_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+for repo in zsh-users/zsh-autosuggestions zsh-users/zsh-syntax-highlighting; do
+    plugin_dir="$ZSH_CUSTOM_DIR/plugins/${repo##*/}"
+    if [ -d "$plugin_dir" ]; then
+        echo "✅ ${repo##*/} already installed, skipping"
+    else
+        git clone --depth 1 "https://github.com/$repo" "$plugin_dir"
+    fi
+done
 
 # Install TPM (Tmux Plugin Manager)
 echo "🔌 Installing Tmux Plugin Manager..."
@@ -222,6 +234,7 @@ create_dotfile() {
 create_dotfile ~/.tmux.conf "$DOTFILES_DIR/.tmux.conf"
 create_dotfile ~/.vimrc "$DOTFILES_DIR/.vimrc"
 create_dotfile ~/.zshrc.custom "$DOTFILES_DIR/.zshrc.custom"
+create_dotfile ~/.zshrc.omz "$DOTFILES_DIR/.zshrc.omz"
 
 # Set up Neovim configuration
 echo "📝 Setting up Neovim configuration..."
@@ -234,6 +247,18 @@ echo "🔍 Verifying dotfiles..."
 verify_file ~/.tmux.conf || echo "⚠️  .tmux.conf not created"
 verify_file ~/.vimrc || echo "⚠️  .vimrc not created" 
 verify_file ~/.zshrc.custom || echo "⚠️  .zshrc.custom not created"
+verify_file ~/.zshrc.omz || echo "⚠️  .zshrc.omz not created"
+
+# Load Oh My Zsh theme/plugins before oh-my-zsh.sh runs — settings made after it are ignored
+if [ -f "$HOME/.zshrc.omz" ] && ! grep -q "source ~/.zshrc.omz" ~/.zshrc 2>/dev/null; then
+    if grep -q '^source \$ZSH/oh-my-zsh.sh' ~/.zshrc 2>/dev/null; then
+        echo "🔗 Linking Oh My Zsh settings into .zshrc..."
+        awk '/^source \$ZSH\/oh-my-zsh.sh/ { print "source ~/.zshrc.omz" } { print }' ~/.zshrc > ~/.zshrc.tmp && mv ~/.zshrc.tmp ~/.zshrc
+        echo "✅ Oh My Zsh settings linked to .zshrc"
+    else
+        echo "⚠️  'source \$ZSH/oh-my-zsh.sh' not found in .zshrc — add 'source ~/.zshrc.omz' above it manually"
+    fi
+fi
 
 # Add custom zsh config to .zshrc
 if [ -f "$HOME/.zshrc.custom" ]; then
@@ -283,6 +308,8 @@ if pip3 install --user --dry-run black 2>&1 | grep -q "externally-managed-enviro
     pipx install flake8
     pipx install pylint
     pipx install isort
+    # pylsp is the Python language server used by coc-settings.json
+    pipx install 'python-lsp-server[all]' || echo "⚠️ python-lsp-server installation failed"
     # Install pynvim for Neovim Python support
     pip3 install --user --break-system-packages --no-warn-script-location pynvim || echo "⚠️ pynvim installation failed"
     echo "✅ Python packages installed via pipx"
@@ -339,8 +366,15 @@ command_exists terraform-ls && echo "✅ terraform-ls installed" || echo "❌ te
 command_exists node && echo "✅ node.js installed" || echo "❌ node.js missing"
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
+command_exists pylsp && echo "✅ python-lsp-server installed" || echo "❌ python-lsp-server missing"
 command_exists code && echo "✅ visual studio code installed" || echo "❌ visual studio code missing"
-command_exists neofetch && echo "✅ neofetch installed" || command_exists fastfetch && echo "✅ fastfetch installed" || echo "❌ neofetch/fastfetch missing"
+if command_exists neofetch; then
+    echo "✅ neofetch installed"
+elif command_exists fastfetch; then
+    echo "✅ fastfetch installed"
+else
+    echo "❌ neofetch/fastfetch missing"
+fi
 
 # Check if FiraCode Nerd Font is installed
 if ls ~/Library/Fonts/FiraCode* >/dev/null 2>&1 || ls /Library/Fonts/FiraCode* >/dev/null 2>&1 || ls /System/Library/Fonts/FiraCode* >/dev/null 2>&1; then
@@ -355,6 +389,7 @@ echo "📄 Checking dotfiles..."
 verify_file ~/.tmux.conf
 verify_file ~/.vimrc
 verify_file ~/.zshrc.custom
+verify_file ~/.zshrc.omz
 verify_file ~/.config/nvim/init.vim
 verify_file ~/.config/nvim/coc-settings.json
 
@@ -363,6 +398,18 @@ if [ -d "$HOME/.oh-my-zsh" ]; then
     echo "✅ Oh My Zsh installed"
 else
     echo "❌ Oh My Zsh missing"
+fi
+
+# Check third-party Oh My Zsh plugins
+for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
+    [ -d "$ZSH_CUSTOM_DIR/plugins/$plugin" ] && echo "✅ $plugin installed" || echo "❌ $plugin missing"
+done
+
+# Check if Oh My Zsh settings load before oh-my-zsh.sh
+if grep -q "source ~/.zshrc.omz" ~/.zshrc 2>/dev/null; then
+    echo "✅ Oh My Zsh settings are linked"
+else
+    echo "⚠️  Oh My Zsh settings not linked in .zshrc"
 fi
 
 # Check if TPM is installed

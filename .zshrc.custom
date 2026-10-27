@@ -15,20 +15,7 @@ if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$tmux_skip" ]; then
 fi
 unset tmux_skip
 
-# Set Oh My Zsh theme
-ZSH_THEME="robbyrussell"
-
-# Oh My Zsh plugins
-plugins=(
-    git
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-    fzf
-    terraform
-    docker
-    node
-    npm
-)
+# Oh My Zsh theme/plugins live in .zshrc.omz (must load before oh-my-zsh.sh)
 
 # Quality of life aliases
 alias ls='eza --icons'
@@ -36,8 +23,6 @@ alias ll='eza -la --icons --git'
 alias lt='eza --tree'
 alias la='eza -la --icons'
 alias cat='bat'
-alias find='fd'
-alias grep='rg'
 
 # Git aliases
 alias gs='git status'
@@ -156,7 +141,7 @@ function gnew() {
 }
 
 # Welcome message
-echo "🚀 Welcome to your Mac-like development environment!"
+echo "🚀 Welcome to your development environment!"
 echo "📁 Current directory: $(pwd)"
 echo "🔧 Available tools: tmux, git, terraform, eza, bat, rg, fd, fzf, fdir"
 echo "💡 Type 'alias' to see all available shortcuts"

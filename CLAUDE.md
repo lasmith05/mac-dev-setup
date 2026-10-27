@@ -26,7 +26,8 @@ mac-dev-setup/
 └── dotfiles/               # Shared config files (identical across platforms)
     ├── .tmux.conf          # Tmux (Ctrl+a prefix, TPM plugins)
     ├── .vimrc              # Vim (auto-installs vim-plug on first run)
-    ├── .zshrc.custom       # Zsh aliases, functions, Oh My Zsh config
+    ├── .zshrc.custom       # Zsh aliases and functions (sourced after Oh My Zsh)
+    ├── .zshrc.omz          # Oh My Zsh theme + plugins (sourced before Oh My Zsh)
     ├── init.vim            # Neovim with vim-plug and LSP (auto-installs plugins)
     └── coc-settings.json   # COC.nvim LSP config (Python, Terraform, JSON, YAML)
 ```
@@ -92,7 +93,9 @@ command_exists package_name && echo "✅ installed" || echo "❌ missing"
 ### Ubuntu (`windows/ubuntu-setup.sh`)
 - **WSL-only**: Checks `/proc/version` to verify WSL environment; fails on native Ubuntu
 - Strips Windows line endings via `tr -d '\r'` when writing dotfiles (CRLF → LF) — critical for cross-platform correctness
-- Creates `bat` symlink from `batcat` (Ubuntu package naming differs from macOS)
+- Creates `bat` and `fd` symlinks from `batcat` and `fdfind` (Ubuntu package naming differs from macOS)
+- WSL detection greps `/proc/version` case-insensitively (WSL2 reports lowercase `microsoft`)
+- Must be run from a full copy of the repo (`./windows/ubuntu-setup.sh`) so `../dotfiles` resolves
 - AWS CLI v2 installation uses the x86_64 binary — WSL on ARM64 requires a different URL
 - FZF: sources key bindings from system package paths (`/usr/share/doc/fzf/`) rather than a Homebrew installer
 
@@ -109,6 +112,7 @@ The repo root contains copies of `.tmux.conf`, `.vimrc`, and `.zshrc.custom` alo
 
 - `.vimrc` and `init.vim` auto-download vim-plug and auto-install all plugins on first launch
 - `init.vim` uses Space as leader; Python and Terraform files auto-format on save (via ALE + black/terraform fmt)
+- `.zshrc.omz` holds `ZSH_THEME`/`plugins` and is inserted into `~/.zshrc` *above* `source $ZSH/oh-my-zsh.sh` (settings after it are ignored); `.zshrc.custom` is appended at the end so its aliases override Oh My Zsh's. Setup scripts clone `zsh-autosuggestions` and `zsh-syntax-highlighting` into `$ZSH_CUSTOM/plugins`
 - `.zshrc.custom` has a `fdir` function for directory finding — named to avoid collision with the `fd` CLI tool
 - Tmux sessions auto-save every 15 minutes via tmux-continuum; resurrect directory pre-created by setup scripts to prevent errors
 

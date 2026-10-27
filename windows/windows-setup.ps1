@@ -64,16 +64,21 @@ if ($LASTEXITCODE -eq 0) { Write-Host "✓ FiraCode Nerd Font installed successf
 Write-Host ""
 Write-Host "Windows setup complete!" -ForegroundColor Green
 Write-Host "All applications were installed silently without user interaction." -ForegroundColor Green
+# Copy the whole repo into WSL — ubuntu-setup.sh finds dotfiles at ../dotfiles relative to itself
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+$RepoName = Split-Path -Leaf $RepoRoot
+$WslRepoPath = "/mnt/" + $RepoRoot.Substring(0, 1).ToLower() + ($RepoRoot.Substring(2) -replace '\\', '/')
+
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "1. Restart your computer to complete WSL installation" -ForegroundColor White
 Write-Host "2. After restart, open Windows Terminal" -ForegroundColor White
 Write-Host "3. Type 'wsl' to enter Ubuntu" -ForegroundColor White
 Write-Host "4. Run these commands in Ubuntu:" -ForegroundColor White
-Write-Host "   cd ~" -ForegroundColor Cyan
-Write-Host "   cp /mnt/c/$(Split-Path -Leaf $PWD)/* ." -ForegroundColor Cyan
-Write-Host "   chmod +x ubuntu-setup.sh" -ForegroundColor Cyan
-Write-Host "   ./ubuntu-setup.sh" -ForegroundColor Cyan
+Write-Host "   cp -r '$WslRepoPath' ~/" -ForegroundColor Cyan
+Write-Host "   cd ~/$RepoName" -ForegroundColor Cyan
+Write-Host "   chmod +x windows/ubuntu-setup.sh" -ForegroundColor Cyan
+Write-Host "   ./windows/ubuntu-setup.sh" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Current setup folder: $PWD" -ForegroundColor Yellow
+Write-Host "Current setup folder: $RepoRoot" -ForegroundColor Yellow
 Write-Host "Remember this path for the Ubuntu setup step!" -ForegroundColor Yellow

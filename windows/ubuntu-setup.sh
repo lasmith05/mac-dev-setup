@@ -27,7 +27,8 @@ verify_file() {
 }
 
 # Check if we're in WSL
-if ! grep -q Microsoft /proc/version 2>/dev/null; then
+# WSL1 reports "Microsoft", WSL2 reports "microsoft-standard-WSL2" — match case-insensitively
+if ! grep -qi microsoft /proc/version 2>/dev/null; then
     echo "⚠️  This script is designed for WSL. Continue anyway? (y/n)"
     read -r response
     if [[ ! "$response" =~ ^[Yy]$ ]]; then
@@ -93,22 +94,9 @@ else
     fi
 fi
 
-# Create bat symlink (Ubuntu installs it as batcat)
+# Create bat and fd symlinks (Ubuntu installs them as batcat and fdfind)
 sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
-
-# Set up fzf key bindings and completion
-echo "🔍 Setting up fzf integration..."
-if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
-    cat >> ~/.zshrc << 'EOF'
-
-# fzf key bindings and completion
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-source /usr/share/doc/fzf/examples/completion.zsh
-EOF
-    echo "✅ fzf key bindings configured"
-else
-    echo "⚠️ fzf key bindings file not found, skipping"
-fi
+sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
 
 # Install Terraform and terraform-ls (Language Server for Neovim/COC)
 echo "🏗️ Installing Terraform..."
@@ -162,6 +150,18 @@ echo "🐚 Installing Oh My Zsh..."
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
+
+# Install third-party Oh My Zsh plugins referenced in .zshrc.omz
+echo "🔌 Installing Oh My Zsh plugins..."
+ZSH_CUSTOM_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+for repo in zsh-users/zsh-autosuggestions zsh-users/zsh-syntax-highlighting; do
+    plugin_dir="$ZSH_CUSTOM_DIR/plugins/${repo##*/}"
+    if [ -d "$plugin_dir" ]; then
+        echo "✅ ${repo##*/} already installed, skipping"
+    else
+        git clone --depth 1 "https://github.com/$repo" "$plugin_dir"
+    fi
+done
 
 # Install TPM (Tmux Plugin Manager)
 echo "🔌 Installing Tmux Plugin Manager..."
@@ -238,6 +238,7 @@ create_dotfile() {
 create_dotfile ~/.tmux.conf "$DOTFILES_DIR/.tmux.conf"
 create_dotfile ~/.vimrc "$DOTFILES_DIR/.vimrc"
 create_dotfile ~/.zshrc.custom "$DOTFILES_DIR/.zshrc.custom"
+create_dotfile ~/.zshrc.omz "$DOTFILES_DIR/.zshrc.omz"
 
 # Set up Neovim configuration
 echo "📝 Setting up Neovim configuration..."
@@ -250,6 +251,16 @@ echo "🔍 Verifying dotfiles..."
 verify_file ~/.tmux.conf || echo "⚠️  .tmux.conf not created"
 verify_file ~/.vimrc || echo "⚠️  .vimrc not created"
 verify_file ~/.zshrc.custom || echo "⚠️  .zshrc.custom not created"
+verify_file ~/.zshrc.omz || echo "⚠️  .zshrc.omz not created"
+
+# Load Oh My Zsh theme/plugins before oh-my-zsh.sh runs — settings made after it are ignored
+if [ -f "$HOME/.zshrc.omz" ] && ! grep -q "source ~/.zshrc.omz" ~/.zshrc 2>/dev/null; then
+    if grep -q '^source \$ZSH/oh-my-zsh.sh' ~/.zshrc 2>/dev/null; then
+        awk '/^source \$ZSH\/oh-my-zsh.sh/ { print "source ~/.zshrc.omz" } { print }' ~/.zshrc > ~/.zshrc.tmp && mv ~/.zshrc.tmp ~/.zshrc
+    else
+        echo "⚠️  'source \$ZSH/oh-my-zsh.sh' not found in .zshrc — add 'source ~/.zshrc.omz' above it manually"
+    fi
+fi
 
 # Add custom zsh config to .zshrc
 if [ -f "$HOME/.zshrc.custom" ]; then
@@ -258,6 +269,22 @@ if [ -f "$HOME/.zshrc.custom" ]; then
         echo "# Custom configuration" >> ~/.zshrc
         echo "source ~/.zshrc.custom" >> ~/.zshrc
     fi
+fi
+
+# Set up fzf key bindings and completion — done after Oh My Zsh, whose installer replaces .zshrc
+echo "🔍 Setting up fzf integration..."
+if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+    if ! grep -q "fzf/examples/key-bindings.zsh" ~/.zshrc 2>/dev/null; then
+        cat >> ~/.zshrc << 'EOF'
+
+# fzf key bindings and completion
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+source /usr/share/doc/fzf/examples/completion.zsh
+EOF
+    fi
+    echo "✅ fzf key bindings configured"
+else
+    echo "⚠️ fzf key bindings file not found, skipping"
 fi
 
 # Set zsh as default shell
@@ -286,7 +313,8 @@ pipx install pylint || pipx upgrade pylint || echo "⚠️ pylint installation f
 pipx install isort || pipx upgrade isort || echo "⚠️ isort installation failed"
 pipx install 'python-lsp-server[all]' || pipx upgrade python-lsp-server || echo "⚠️ python-lsp-server installation failed"
 # pynvim must be in the same environment Neovim's Python provider uses
-pip3 install --user pynvim || echo "⚠️ pynvim installation failed"
+# (pip3 install --user is blocked on Ubuntu 24.04's externally managed Python)
+sudo apt install -y python3-pynvim || echo "⚠️ pynvim installation failed"
 echo "✅ Python packages installed"
 
 echo ""
@@ -306,7 +334,13 @@ command_exists fd && echo "✅ fd installed" || echo "❌ fd missing"
 command_exists fzf && echo "✅ fzf installed" || echo "❌ fzf missing"
 command_exists btop && echo "✅ btop installed" || echo "❌ btop missing"
 command_exists glances && echo "✅ glances installed" || echo "❌ glances missing"
-command_exists neofetch && echo "✅ neofetch installed" || command_exists fastfetch && echo "✅ fastfetch installed" || echo "❌ neofetch/fastfetch missing"
+if command_exists neofetch; then
+    echo "✅ neofetch installed"
+elif command_exists fastfetch; then
+    echo "✅ fastfetch installed"
+else
+    echo "❌ neofetch/fastfetch missing"
+fi
 command_exists aws && echo "✅ aws cli installed" || echo "❌ aws cli missing"
 command_exists nvim && echo "✅ neovim installed" || echo "❌ neovim missing"
 command_exists python3 && echo "✅ python3 installed" || echo "❌ python3 missing"
@@ -324,6 +358,7 @@ echo "📄 Checking dotfiles..."
 verify_file ~/.tmux.conf
 verify_file ~/.vimrc
 verify_file ~/.zshrc.custom
+verify_file ~/.zshrc.omz
 verify_file ~/.config/nvim/init.vim
 verify_file ~/.config/nvim/coc-settings.json
 
@@ -332,6 +367,18 @@ if [ -d "$HOME/.oh-my-zsh" ]; then
     echo "✅ Oh My Zsh installed"
 else
     echo "❌ Oh My Zsh missing"
+fi
+
+# Check third-party Oh My Zsh plugins
+for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
+    [ -d "$ZSH_CUSTOM_DIR/plugins/$plugin" ] && echo "✅ $plugin installed" || echo "❌ $plugin missing"
+done
+
+# Check if Oh My Zsh settings load before oh-my-zsh.sh
+if grep -q "source ~/.zshrc.omz" ~/.zshrc 2>/dev/null; then
+    echo "✅ Oh My Zsh settings are linked"
+else
+    echo "⚠️  Oh My Zsh settings not linked in .zshrc"
 fi
 
 # Check if TPM is installed
@@ -364,4 +411,4 @@ echo ""
 echo "🛠️  If any items show ❌, you may need to run parts of the setup manually."
 echo "🎯  For issues, check the GitHub repository README for troubleshooting."
 echo ""
-echo "Enjoy your new Mac-like development environment! 🚀"
+echo "Enjoy your Ubuntu development environment! 🚀"

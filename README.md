@@ -51,6 +51,7 @@ dev-setup/
     ├── .tmux.conf           # Tmux configuration
     ├── .vimrc               # Vim configuration
     ├── .zshrc.custom        # Zsh configuration
+    ├── .zshrc.omz           # Oh My Zsh theme and plugins
     ├── init.vim             # Neovim configuration with vim-plug and plugins
     └── coc-settings.json    # COC.nvim LSP configuration
 ```
@@ -95,8 +96,6 @@ dev-setup/
 # Modern CLI tool aliases
 alias ls='eza --icons'
 alias cat='bat'
-alias find='fd'
-alias grep='rg'
 
 # Git shortcuts
 alias gs='git status'
@@ -185,7 +184,7 @@ All platforms use identical dotfiles ensuring consistent development experience:
 ### Windows Issues
 - **WSL2 installation**: Ensure Windows version supports WSL2 (Windows 10 2004+ or Windows 11)
 - **PowerShell execution**: Run PowerShell as Administrator
-- **Ubuntu setup**: Copy files from Windows to Ubuntu before running ubuntu-setup.sh
+- **Ubuntu setup**: Copy the whole repo into Ubuntu (e.g. `cp -r /mnt/c/path/to/repo ~/`) and run `./windows/ubuntu-setup.sh` from it
 
 ### Common Issues
 - **Tmux plugins**: Install manually with `Ctrl+a` then `I`

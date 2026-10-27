@@ -1,0 +1,19 @@
+# Oh My Zsh Settings (.zshrc.omz)
+# Sourced from .zshrc *before* oh-my-zsh.sh loads — theme/plugins set afterwards are ignored.
+# Aliases and functions live in .zshrc.custom, which is sourced after Oh My Zsh so they win.
+
+# Set Oh My Zsh theme
+ZSH_THEME="robbyrussell"
+
+# Oh My Zsh plugins (zsh-autosuggestions/zsh-syntax-highlighting are cloned by the setup scripts)
+# zsh-syntax-highlighting must be last
+plugins=(
+    git
+    zsh-autosuggestions
+    fzf
+    terraform
+    docker
+    node
+    npm
+    zsh-syntax-highlighting
+)
